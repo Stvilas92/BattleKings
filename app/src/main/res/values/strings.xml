@@ -1,0 +1,37 @@
+<resources>
+    <string name="app_name">BattleKings</string>
+    <string name="menu_main_play">Jugar</string>
+    <string name="menu_main_options">Opciones</string>
+    <string name="menu_main_credits">Créditos</string>
+    <string name="menu_main_profile">Perfil</string>
+    <string name="menu_options_language">Idioma : Español</string>
+    <string name="menu_options_music_on">Música : ON</string>
+    <string name="menu_options_music_off">Música : OFF</string>
+    <string name="menu_options_vibration_on">Vibración : ON</string>
+    <string name="menu_options_vibration_off">Vibración : OFF</string>
+    <string name="menu_play_new_game">Partida nueva</string>
+    <string name="menu_play_tutorial">Tutorial</string>
+
+    <!-- Credits-->
+    <array name="list_credits">
+        <item>Desarrollador : Aelajandro Vilas</item>
+        <item>Dibujos : Alejandro Vilas</item>
+        <item>Dibujos : Andrea Pérez</item>
+        <item>Dibujos : Enlace web 1</item>
+        <item>Dibujos : Enlace web 2</item>
+        <item>Dibujos : Enlace web 3</item>
+    </array>
+
+    <!--Profile -->
+    <string name="menu_profile_username">Nombre de usuario</string>
+    <string name="menu_profile_username_default">Username</string>
+    <string name="menu_profile_photo">Foto</string>
+    <string name="menu_profile_w_l">Victorias/Derrotas</string>
+    <string name="menu_profile_units_created">Unidades creadas</string>
+    <string name="menu_profile_units_loss">Unidades perdidas</string>
+    <string name="menu_profile_units_destroyed">Unidades destruidas</string>
+    <string name="menu_profile_resources_collected">Total recursos recogidos</string>
+    <string name="menu_profile_buildings_created">Edificios creados</string>
+    <string name="menu_profile_buildings_loss">Edificios perdidos</string>
+    <string name="menu_profile_buildings_destroyed">Edificios destruidos</string>
+</resources>

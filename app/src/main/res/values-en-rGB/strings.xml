@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">BattleKings</string>
+    <string name="menu_main_credits">Credits</string>
+    <string name="menu_main_options">Options</string>
+    <string name="menu_main_play">Play</string>
+    <string name="menu_main_profile">Profile</string>
+    <string name="menu_options_language">Language : English</string>
+    <string name="menu_options_music_off">Music : OFF</string>
+    <string name="menu_options_music_on">Music :ON</string>
+    <string name="menu_options_vibration_off">Vibration : OFF</string>
+    <string name="menu_options_vibration_on">Vibration : ON</string>
+    <string name="menu_play_new_game">New Game</string>
+    <string name="menu_play_tutorial">Tutorial</string>
+    <string name="menu_profile_buildings_created">Buildings created</string>
+    <string name="menu_profile_buildings_destroyed">Buildings destroyed</string>
+    <string name="menu_profile_buildings_loss">Buildings loss</string>
+    <string name="menu_profile_photo">Photo</string>
+    <string name="menu_profile_resources_collected">Resources collected</string>
+    <string name="menu_profile_units_created">Units created</string>
+    <string name="menu_profile_units_destroyed">Units destroyed</string>
+    <string name="menu_profile_units_loss">Units loss</string>
+    <string name="menu_profile_username">Username</string>
+    <string name="menu_profile_w_l">Wins/Losses</string>
+    <string name="menu_profile_username_default">Username</string>
+</resources>

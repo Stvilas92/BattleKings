@@ -1,0 +1,283 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/cover"
+    tools:context=".MainActivity">
+
+    <Button
+        android:id="@+id/btnBackProfile"
+        android:layout_width="58dp"
+        android:layout_height="57dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
+        android:background="@drawable/red_button08"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <TextView
+        android:id="@+id/txvName"
+        android:layout_width="135dp"
+        android:layout_height="27dp"
+        android:layout_marginStart="40dp"
+        android:layout_marginTop="56dp"
+        android:fontFamily="@font/zorque"
+        android:text="@string/menu_profile_username"
+        android:textColor="#000000"
+        android:textSize="12sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/txvNameValue"
+        android:layout_width="135dp"
+        android:layout_height="27dp"
+        android:layout_marginTop="36dp"
+        android:fontFamily="@font/zorque"
+        android:gravity="center|center_vertical"
+        android:text="@string/menu_profile_username_default"
+        android:textColor="#000000"
+        android:textSize="12sp"
+        app:layout_constraintEnd_toEndOf="@+id/txvName"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/txvName"
+        app:layout_constraintTop_toBottomOf="@+id/txvName" />
+
+    <TextView
+        android:id="@+id/txvWL"
+        android:layout_width="135dp"
+        android:layout_height="27dp"
+        android:layout_marginTop="104dp"
+        android:fontFamily="@font/zorque"
+        android:text="@string/menu_profile_w_l"
+        android:textColor="#000000"
+        android:textSize="12sp"
+        app:layout_constraintEnd_toEndOf="@+id/txvName"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/txvName"
+        app:layout_constraintTop_toBottomOf="@+id/txvNameValue" />
+
+    <TextView
+        android:id="@+id/txvWLValue"
+        android:layout_width="135dp"
+        android:layout_height="27dp"
+        android:fontFamily="@font/zorque"
+        android:text="0/0"
+        android:textColor="#000000"
+        android:textSize="12sp"
+        app:layout_constraintBottom_toBottomOf="@+id/txvWL"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.75"
+        app:layout_constraintStart_toEndOf="@+id/txvNameValue"
+        app:layout_constraintTop_toTopOf="@+id/txvWL"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <TextView
+        android:id="@+id/txvUnitsCreatedValue"
+        android:layout_width="135dp"
+        android:layout_height="27dp"
+        android:layout_marginTop="16dp"
+        android:fontFamily="@font/zorque"
+        android:text="0"
+        android:textColor="#000000"
+        android:textSize="12sp"
+        app:layout_constraintEnd_toEndOf="@+id/txvWLValue"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/txvWLValue"
+        app:layout_constraintTop_toBottomOf="@+id/txvWLValue" />
+
+    <TextView
+        android:id="@+id/txvUnitsLossValue"
+        android:layout_width="135dp"
+        android:layout_height="27dp"
+        android:layout_marginTop="16dp"
+        android:fontFamily="@font/zorque"
+        android:text="0"
+        android:textColor="#000000"
+        android:textSize="12sp"
+        app:layout_constraintEnd_toEndOf="@+id/txvUnitsCreatedValue"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/txvUnitsCreatedValue"
+        app:layout_constraintTop_toBottomOf="@+id/txvUnitsCreatedValue" />
+
+    <TextView
+        android:id="@+id/txvUnitsDestryedValue"
+        android:layout_width="135dp"
+        android:layout_height="27dp"
+        android:layout_marginTop="16dp"
+        android:fontFamily="@font/zorque"
+        android:text="0"
+        android:textColor="#000000"
+        android:textSize="12sp"
+        app:layout_constraintEnd_toEndOf="@+id/txvUnitsLossValue"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/txvUnitsLossValue"
+        app:layout_constraintTop_toBottomOf="@+id/txvUnitsLossValue" />
+
+    <TextView
+        android:id="@+id/txvResourcesCollectedValue"
+        android:layout_width="135dp"
+        android:layout_height="27dp"
+        android:layout_marginTop="16dp"
+        android:fontFamily="@font/zorque"
+        android:text="0"
+        android:textColor="#000000"
+        android:textSize="12sp"
+        app:layout_constraintEnd_toEndOf="@+id/txvUnitsDestryedValue"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/txvUnitsDestryedValue"
+        app:layout_constraintTop_toBottomOf="@+id/txvUnitsDestryedValue" />
+
+    <TextView
+        android:id="@+id/txvBuildingsCreatedValue"
+        android:layout_width="135dp"
+        android:layout_height="27dp"
+        android:layout_marginTop="16dp"
+        android:fontFamily="@font/zorque"
+        android:text="0"
+        android:textColor="#000000"
+        android:textSize="12sp"
+        app:layout_constraintEnd_toEndOf="@+id/txvResourcesCollectedValue"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/txvResourcesCollectedValue"
+        app:layout_constraintTop_toBottomOf="@+id/txvResourcesCollectedValue" />
+
+    <TextView
+        android:id="@+id/txvBuildingsDestroyedValue"
+        android:layout_width="135dp"
+        android:layout_height="27dp"
+        android:layout_marginTop="16dp"
+        android:fontFamily="@font/zorque"
+        android:text="0"
+        android:textColor="#000000"
+        android:textSize="12sp"
+        app:layout_constraintEnd_toEndOf="@+id/txvBuildingsCreatedValue"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/txvBuildingsCreatedValue"
+        app:layout_constraintTop_toBottomOf="@+id/txvBuildingsCreatedValue" />
+
+    <TextView
+        android:id="@+id/txvBuildingsLossValue"
+        android:layout_width="135dp"
+        android:layout_height="27dp"
+        android:layout_marginTop="16dp"
+        android:fontFamily="@font/zorque"
+        android:text="0"
+        android:textColor="#000000"
+        android:textSize="12sp"
+        app:layout_constraintEnd_toEndOf="@+id/txvBuildingsDestroyedValue"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/txvBuildingsDestroyedValue"
+        app:layout_constraintTop_toBottomOf="@+id/txvBuildingsDestroyedValue" />
+
+    <TextView
+        android:id="@+id/txvUnitsCreated"
+        android:layout_width="135dp"
+        android:layout_height="27dp"
+        android:layout_marginTop="16dp"
+        android:fontFamily="@font/zorque"
+        android:text="@string/menu_profile_units_created"
+        android:textColor="#000000"
+        android:textSize="12sp"
+        app:layout_constraintEnd_toEndOf="@+id/txvName"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/txvName"
+        app:layout_constraintTop_toBottomOf="@+id/txvWL" />
+
+    <TextView
+        android:id="@+id/txvUnitsLoss"
+        android:layout_width="140dp"
+        android:layout_height="27dp"
+        android:layout_marginTop="16dp"
+        android:fontFamily="@font/zorque"
+        android:text="@string/menu_profile_units_destroyed"
+        android:textColor="#000000"
+        android:textSize="12sp"
+        app:layout_constraintEnd_toEndOf="@+id/txvName"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/txvName"
+        app:layout_constraintTop_toBottomOf="@+id/txvUnitsCreated" />
+
+    <TextView
+        android:id="@+id/txvUnitsDestryed"
+        android:layout_width="135dp"
+        android:layout_height="27dp"
+        android:layout_marginTop="16dp"
+        android:fontFamily="@font/zorque"
+        android:text="@string/menu_profile_units_loss"
+        android:textColor="#000000"
+        android:textSize="12sp"
+        app:layout_constraintEnd_toEndOf="@+id/txvName"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/txvName"
+        app:layout_constraintTop_toBottomOf="@+id/txvUnitsLoss" />
+
+    <TextView
+        android:id="@+id/txvResourcesCollected"
+        android:layout_width="135dp"
+        android:layout_height="27dp"
+        android:layout_marginTop="16dp"
+        android:fontFamily="@font/zorque"
+        android:text="@string/menu_profile_resources_collected"
+        android:textColor="#000000"
+        android:textSize="12sp"
+        app:layout_constraintEnd_toEndOf="@+id/txvName"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/txvName"
+        app:layout_constraintTop_toBottomOf="@+id/txvUnitsDestryed" />
+
+    <TextView
+        android:id="@+id/txvBuildingsCreated"
+        android:layout_width="135dp"
+        android:layout_height="27dp"
+        android:layout_marginTop="16dp"
+        android:fontFamily="@font/zorque"
+        android:text="@string/menu_profile_buildings_created"
+        android:textColor="#000000"
+        android:textSize="12sp"
+        app:layout_constraintEnd_toEndOf="@+id/txvName"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/txvName"
+        app:layout_constraintTop_toBottomOf="@+id/txvResourcesCollected" />
+
+    <TextView
+        android:id="@+id/txvBuildingsDestroyed"
+        android:layout_width="135dp"
+        android:layout_height="27dp"
+        android:layout_marginTop="16dp"
+        android:fontFamily="@font/zorque"
+        android:text="@string/menu_profile_buildings_destroyed"
+        android:textColor="#000000"
+        android:textSize="12sp"
+        app:layout_constraintEnd_toEndOf="@+id/txvName"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/txvName"
+        app:layout_constraintTop_toBottomOf="@+id/txvBuildingsCreated" />
+
+    <TextView
+        android:id="@+id/txvBuildingsLoss"
+        android:layout_width="135dp"
+        android:layout_height="27dp"
+        android:layout_marginTop="16dp"
+        android:fontFamily="@font/zorque"
+        android:text="@string/menu_profile_buildings_loss"
+        android:textColor="#000000"
+        android:textSize="12sp"
+        app:layout_constraintEnd_toEndOf="@+id/txvName"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/txvName"
+        app:layout_constraintTop_toBottomOf="@+id/txvBuildingsDestroyed" />
+
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="@+id/txvNameValue"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/txvName"
+        app:layout_constraintTop_toTopOf="@+id/txvName"
+        tools:srcCompat="@mipmap/ic_launcher_round" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
