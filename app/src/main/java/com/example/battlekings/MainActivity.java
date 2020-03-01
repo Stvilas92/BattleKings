@@ -2,14 +2,22 @@ package com.example.battlekings;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.database.sqlite.SQLiteDatabase;
+import android.graphics.drawable.Drawable;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Vibrator;
+import android.util.DisplayMetrics;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.Locale;
 
@@ -20,10 +28,14 @@ public class MainActivity extends AppCompatActivity {
     private static final int LAYOUT_PROFILE = R.layout.menu_profile;
     private static final int LAYOUT_CREDITS = R.layout.menu_credits;
 
-    SharedPreferences preferences;
+    private MediaPlayer mediaPlayer;
+    private AudioManager audioManager;
+    private SharedPreferences preferences;
     private Options options;
     private int actualLayout = LAYOUT_MAIN;
-    Resources res;
+    private Resources res;
+    private BD bd;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -31,12 +43,23 @@ public class MainActivity extends AppCompatActivity {
         preferences = getPreferences(getApplicationContext().MODE_PRIVATE);
         options = new Options(false,false,Language.ENGLISH);
         getOptionsFromPreferences(preferences);
-//        options = new Options(this);
-//        options.getOptionsFromProperties();
         setContentView(actualLayout);
         res = this.getResources();
+        mediaPlayer = MediaPlayer.create(this,R.raw.main_music);
+        audioManager = (AudioManager)this.getSystemService(Context.AUDIO_SERVICE);
+        int v=audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
+        mediaPlayer.setVolume(v/2,v/2);
+
+        BD bd= new BD(this,"game",null,1);
+        SQLiteDatabase db = bd.getWritableDatabase();
+        if(db != null){
+//            PlayerData data = new PlayerData(10,5,9,124,3,7,2);
+//            bd.putData(db,data);
+            db.close();
+        }
 
         inicializateComponentsMain();
+        mediaPlayer.start();
     }
 
     private void changeLayout(int layoutIndex){
@@ -44,8 +67,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void inicializateComponentsMain(){
-        Button btnPlay = findViewById(R.id.btnNewGame_main);
-        Button btnCredits = findViewById(R.id.btnBackCredits);
+        Button btnPlay = findViewById(R.id.btnSurvive);
+        Button btnCredits = findViewById(R.id.btnCredits);
         Button btnOptions = findViewById(R.id.btnOption);
         Button btnProfile =  findViewById(R.id.btnProfile);
 
@@ -61,6 +84,14 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        btnPlay.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                btnTouch(v,event);
+                return false;
+            }
+        });
+
         btnCredits.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -70,6 +101,14 @@ public class MainActivity extends AppCompatActivity {
                 if(options.isVibration()) {
                     vibrate();
                 }
+            }
+        });
+
+        btnCredits.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                btnTouch(v,event);
+                return false;
             }
         });
 
@@ -85,6 +124,14 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        btnOptions.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                btnTouch(v,event);
+                return false;
+            }
+        });
+
         btnProfile.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -94,6 +141,14 @@ public class MainActivity extends AppCompatActivity {
                 if(options.isVibration()) {
                     vibrate();
                 }
+            }
+        });
+
+        btnProfile.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                btnTouch(v,event);
+                return false;
             }
         });
     }
@@ -108,6 +163,13 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 onBackPressed();
+            }
+        });
+        btnBack.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                btnTouch(v,event);
+                return false;
             }
         });
 
@@ -126,7 +188,8 @@ public class MainActivity extends AppCompatActivity {
         btnLanguage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Configuration configuration;
+                android.content.res.Configuration configuration;
+                DisplayMetrics dm = res.getDisplayMetrics();
                 configuration = new Configuration(res.getConfiguration());
                 if(options.getLanguage().equals(Language.ESPAÑOL)){
                     options.setLanguage(Language.ENGLISH);
@@ -141,6 +204,15 @@ public class MainActivity extends AppCompatActivity {
                 }
                 //TODO pendiente de hacer
                 getApplicationContext().createConfigurationContext(configuration);
+                res.updateConfiguration(configuration,dm);
+            }
+        });
+
+        btnLanguage.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                btnTouch(v,event);
+                return false;
             }
         });
 
@@ -160,6 +232,14 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        btnMusic.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                btnTouch(v,event);
+                return false;
+            }
+        });
+
         btnVibration.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -172,10 +252,18 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+
+        btnVibration.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                btnTouch(v,event);
+                return false;
+            }
+        });
     }
 
     private void inicializateComponentsPlay(){
-        Button btnNewGame = findViewById(R.id.btnNewGame_main);
+        Button btnNewGame = findViewById(R.id.btnSurvive);
         Button btnTutorial = findViewById(R.id.btnTutorial);
         Button btnBack = findViewById(R.id.btnBackPlay);
 
@@ -186,12 +274,31 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        btnBack.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                btnTouch(v,event);
+                return false;
+            }
+        });
+
         btnNewGame.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if(options.isVibration()) {
                     vibrate();
                 }
+
+                PlayerData data = new PlayerData(10,5,9,124,3,7,2);
+                bd.putData(bd.getWritableDatabase(),data);
+            }
+        });
+
+        btnNewGame.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                btnTouch(v,event);
+                return false;
             }
         });
 
@@ -201,6 +308,14 @@ public class MainActivity extends AppCompatActivity {
                 if(options.isVibration()) {
                     vibrate();
                 }
+            }
+        });
+
+        btnTutorial.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                btnTouch(v,event);
+                return false;
             }
         });
     }
@@ -222,15 +337,57 @@ public class MainActivity extends AppCompatActivity {
                 onBackPressed();
             }
         });
+
+        btnBack.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                btnTouch(v,event);
+                return false;
+            }
+        });
     }
 
     private void inicializateComponentsProfile(){
         final Button btnBack = findViewById(R.id.btnBackProfile);
+        bd = new BD(this,"game",null,1);
+        SQLiteDatabase readble = bd.getReadableDatabase();
+        PlayerData data = new PlayerData();
+        if(readble != null) {
+             data = bd.getTotalData(bd.getReadableDatabase());
+
+             readble.close();
+        }else{
+            Toast.makeText(getApplicationContext(),"Player data is not available at the moment",Toast.LENGTH_SHORT).show();
+            onBackPressed();
+        }
+
+        TextView tvBuildsCreated = findViewById(R.id.txvBuildingsCreatedValue);
+        tvBuildsCreated.setText(""+data.getBuildsCreated());
+        TextView tvBuildsLoss = findViewById(R.id.txvBuildingsLossValue);
+        tvBuildsLoss.setText(""+data.getBuildsLoss());
+        TextView tvBuildsDestroyed = findViewById(R.id.txvBuildingsDestroyedValue);
+        tvBuildsDestroyed.setText(""+data.getBuildsDestroyed());
+        TextView tvResourcesCollected = findViewById(R.id.txvResourcesCollectedValue);
+        tvResourcesCollected.setText(""+data.getResourcesCollected());
+        TextView tvUnitsCreated = findViewById(R.id.txvUnitsCreatedValue);
+        tvUnitsCreated.setText(""+data.getUnitsCreated());
+        TextView tvUnitsLoss = findViewById(R.id.txvUnitsLossValue);
+        tvUnitsLoss.setText(""+data.getUnitsLoss());
+        TextView tvUnitsDestroyed = findViewById(R.id.txvUnitsDestryedValue);
+        tvUnitsDestroyed.setText(""+data.getUnitsDestroyed());
 
         btnBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 onBackPressed();
+            }
+        });
+
+        btnBack.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                btnTouch(v,event);
+                return false;
             }
         });
     }
@@ -286,5 +443,71 @@ public class MainActivity extends AppCompatActivity {
         this.options.setMusic( preferences.getBoolean("music",false));
         String language = preferences.getString("language","ENGLISH");
         this.options.setLanguage(Language.valueOf(language));
+    }
+
+    public boolean btnTouch(View button , MotionEvent theMotion ) {
+        switch ( theMotion.getAction() ) {
+            case MotionEvent.ACTION_UP:
+                switch (button.getId()){
+                    case R.id.btnBackCredits:
+                    case R.id.btnBackOptions:
+                    case R.id.btnBackPlay:
+                    case R.id.btnBackProfile:
+//                        button.setBackground(getDrawable(R.drawable.green_button01));
+                        break;
+
+                    case R.id.btnSurvive:
+                    case R.id.btnLanguage:
+                        button.setBackground(getDrawable(R.drawable.blue_button00));
+                        break;
+
+                    case R.id.btnMusic:
+                    case R.id.btnCredits:
+                        button.setBackground(getDrawable(R.drawable.yellow_button00));
+                        break;
+
+                    case R.id.btnVibration:
+                    case R.id.btnTutorial:
+                    case R.id.btnOption:
+                        button.setBackground(getDrawable(R.drawable.green_button00));
+                        break;
+
+                    case R.id.btnProfile:
+                        button.setBackground(getDrawable(R.drawable.grey_button00));
+                        break;
+                }
+                break;
+            case MotionEvent.ACTION_DOWN:
+                switch (button.getId()){
+                    case R.id.btnBackCredits:
+                    case R.id.btnBackOptions:
+                    case R.id.btnBackPlay:
+                    case R.id.btnBackProfile:
+//                        button.setBackground(getDrawable(R.drawable.green_button01));
+                        break;
+
+                    case R.id.btnSurvive:
+                    case R.id.btnLanguage:
+                        button.setBackground(getDrawable(R.drawable.blue_button01));
+                        break;
+
+                    case R.id.btnMusic:
+                    case R.id.btnCredits:
+                        button.setBackground(getDrawable(R.drawable.yellow_button01));
+                        break;
+
+                    case R.id.btnVibration:
+                    case R.id.btnTutorial:
+                    case R.id.btnOption:
+                        button.setBackground(getDrawable(R.drawable.green_button01));
+                        break;
+
+                    case R.id.btnProfile:
+                        button.setBackground(getDrawable(R.drawable.grey_button01));
+                        break;
+                }
+                break;
+        }
+        return true;
     }
 }

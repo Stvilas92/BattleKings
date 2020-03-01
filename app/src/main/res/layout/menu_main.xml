@@ -8,7 +8,7 @@
     android:background="@drawable/cover">
 
     <Button
-        android:id="@+id/btnNewGame_main"
+        android:id="@+id/btnSurvive"
         android:layout_width="228dp"
         android:layout_height="63dp"
         android:layout_marginTop="144dp"
@@ -21,7 +21,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
-        android:id="@+id/btnBackCredits"
+        android:id="@+id/btnCredits"
         android:layout_width="228dp"
         android:layout_height="63dp"
         android:layout_marginTop="32dp"
@@ -43,10 +43,10 @@
         android:fontFamily="@font/crackman"
         android:text="@string/menu_main_profile"
         android:textSize="24sp"
-        app:layout_constraintEnd_toEndOf="@+id/btnBackCredits"
+        app:layout_constraintEnd_toEndOf="@+id/btnCredits"
         app:layout_constraintHorizontal_bias="0.502"
-        app:layout_constraintStart_toStartOf="@+id/btnBackCredits"
-        app:layout_constraintTop_toBottomOf="@+id/btnBackCredits" />
+        app:layout_constraintStart_toStartOf="@+id/btnCredits"
+        app:layout_constraintTop_toBottomOf="@+id/btnCredits" />
 
     <Button
         android:id="@+id/btnOption"
@@ -57,9 +57,9 @@
         android:fontFamily="@font/crackman"
         android:text="@string/menu_main_options"
         android:textSize="24sp"
-        app:layout_constraintEnd_toEndOf="@+id/btnNewGame_main"
+        app:layout_constraintEnd_toEndOf="@+id/btnSurvive"
         app:layout_constraintHorizontal_bias="0.497"
-        app:layout_constraintStart_toStartOf="@+id/btnNewGame_main"
-        app:layout_constraintTop_toBottomOf="@+id/btnNewGame_main" />
+        app:layout_constraintStart_toStartOf="@+id/btnSurvive"
+        app:layout_constraintTop_toBottomOf="@+id/btnSurvive" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
