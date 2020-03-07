@@ -1,32 +1,43 @@
 package com.example.battlekings;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
+import android.media.Image;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Vibrator;
+import android.provider.MediaStore;
+import android.text.InputType;
 import android.util.DisplayMetrics;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.Locale;
 
-public class MainActivity extends AppCompatActivity {
+public class MainMenu extends AppCompatActivity {
     private static final int LAYOUT_MAIN = R.layout.menu_main;
     private static final int LAYOUT_PLAY = R.layout.menu_play;
     private static final int LAYOUT_OPTIONS = R.layout.menu_options;
     private static final int LAYOUT_PROFILE = R.layout.menu_profile;
     private static final int LAYOUT_CREDITS = R.layout.menu_credits;
+    private static final int REQUEST_IMAGE_CAPTURE = 1;
+
 
     private MediaPlayer mediaPlayer;
     private AudioManager audioManager;
@@ -35,11 +46,15 @@ public class MainActivity extends AppCompatActivity {
     private int actualLayout = LAYOUT_MAIN;
     private Resources res;
     private BD bd;
+    private ImageView imageView;
+    private AlertDialog.Builder builder;
+    private TextView tvUsernameValue;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setFullScreen();
+        createDialog();
         preferences = getPreferences(getApplicationContext().MODE_PRIVATE);
         options = new Options(false,false,Language.ENGLISH);
         getOptionsFromPreferences(preferences);
@@ -375,6 +390,24 @@ public class MainActivity extends AppCompatActivity {
         tvUnitsLoss.setText(""+data.getUnitsLoss());
         TextView tvUnitsDestroyed = findViewById(R.id.txvUnitsDestryedValue);
         tvUnitsDestroyed.setText(""+data.getUnitsDestroyed());
+        tvUsernameValue = findViewById(R.id.txvUsernameValue);
+
+        imageView = findViewById(R.id.imageView);
+//        imageView.setImageDrawable(getDrawable(Android));
+        imageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dispatchTakePictureIntent();
+            }
+        });
+
+        ImageView imgAddUsername = findViewById(R.id.btnChangeName);
+        imgAddUsername.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                builder.show();
+            }
+        });
 
         btnBack.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -425,9 +458,9 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        setFullScreen();
         preferences = getPreferences(getApplicationContext().MODE_PRIVATE);
         getOptionsFromPreferences(preferences);
+        setFullScreen();
     }
 
     @Override
@@ -510,4 +543,44 @@ public class MainActivity extends AppCompatActivity {
         }
         return true;
     }
+
+    private void dispatchTakePictureIntent() {
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+            startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
+            Bundle extras = data.getExtras();
+            Bitmap imageBitmap = (Bitmap) extras.get("data");
+            imageView.setImageBitmap(imageBitmap);
+        }
+    }
+
+    private void createDialog() {
+        builder = new AlertDialog.Builder(this);
+        builder.setTitle("Title");
+
+        final EditText input = new EditText(this);
+        input.setInputType(InputType.TYPE_CLASS_TEXT );
+        builder.setView(input);
+
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                tvUsernameValue.setText(input.getText().toString());
+            }
+        });
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+    }
+
+
 }
