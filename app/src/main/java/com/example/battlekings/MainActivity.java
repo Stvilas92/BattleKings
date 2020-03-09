@@ -94,7 +94,7 @@ public class MainActivity extends AppCompatActivity {
      */
     private void inicializateComponentsMain(){
         volume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
-        Button btnPlay = findViewById(R.id.btnNewGame_main);
+        Button btnPlay = findViewById(R.id.btnSurvive);
         Button btnCredits = findViewById(R.id.btnBackCredits);
         Button btnOptions = findViewById(R.id.btnOption);
         Button btnProfile =  findViewById(R.id.btnProfile);
@@ -258,7 +258,7 @@ public class MainActivity extends AppCompatActivity {
      */
     private void inicializateComponentsPlay(){
         volume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
-        Button btnNewGame = findViewById(R.id.btnNewGame_main);
+        Button btnNewGame = findViewById(R.id.btnSurvive);
         Button btnTutorial = findViewById(R.id.btnTutorial);
         Button btnBack = findViewById(R.id.btnBackPlay);
 

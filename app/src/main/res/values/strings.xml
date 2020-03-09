@@ -9,7 +9,7 @@
     <string name="menu_options_music_off">Música : OFF</string>
     <string name="menu_options_vibration_on">Vibración : ON</string>
     <string name="menu_options_vibration_off">Vibración : OFF</string>
-    <string name="menu_play_new_game">Partida nueva</string>
+    <string name="menu_play_new_game">Supervivencia</string>
     <string name="menu_play_tutorial">Tutorial</string>
 
     <!-- Credits-->
@@ -23,7 +23,7 @@
     </array>
 
     <!--Profile -->
-    <string name="menu_profile_username">Nombre de usuario</string>
+    <string name="menu_profile_username">Informacion del usuario</string>
     <string name="menu_profile_username_default">Username</string>
     <string name="menu_profile_photo">Foto</string>
     <string name="menu_profile_w_l">Victorias/Derrotas</string>
@@ -34,4 +34,15 @@
     <string name="menu_profile_buildings_created">Edificios creados</string>
     <string name="menu_profile_buildings_loss">Edificios perdidos</string>
     <string name="menu_profile_buildings_destroyed">Edificios destruidos</string>
+
+
+    <!-- Pause menu -->
+    <string name="menu_pause_return">Volver al juego</string>
+    <string name="menu_pause_main_menu">Menu principal</string>
+
+    <!-- Tutorial -->
+    <string name="tutorial_move">Morvese</string>
+    <string name="tutorial_action">Acción del personaje</string>
+    <string name="tutorial_objetive">Objetivo del juego</string>
+    <string name="tutorial_objetive_description">El juego consiste en</string>
 </resources>
