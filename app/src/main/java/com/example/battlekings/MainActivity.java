@@ -2,14 +2,23 @@ package com.example.battlekings;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.media.AudioAttributes;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
+import android.media.SoundPool;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+
+import com.example.battlekings.Screen.GameView;
+import com.example.battlekings.Utils.Options;
 
 import java.util.Locale;
 
@@ -23,7 +32,16 @@ public class MainActivity extends AppCompatActivity {
     SharedPreferences preferences;
     private Options options;
     private int actualLayout = LAYOUT_MAIN;
-    Resources res;
+    private GameView game;
+    private Resources res;
+    private boolean screnOrientation = false;
+    private MainActivity mainActivity;
+    private boolean flagInitGame = false;
+    private AudioManager audioManager;
+    private SoundPool soundEffects;
+    private int btnSound,volume;
+    private MediaPlayer mediaPlayer;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -35,15 +53,47 @@ public class MainActivity extends AppCompatActivity {
 //        options.getOptionsFromProperties();
         setContentView(actualLayout);
         res = this.getResources();
+        mainActivity = this;
+        audioManager=(AudioManager)getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
 
+        if ((android.os.Build.VERSION.SDK_INT) >= 21) {
+            SoundPool.Builder spb=new SoundPool.Builder();
+            spb.setAudioAttributes(new AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_MEDIA)
+                    .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION).build());
+            spb.setMaxStreams(5);
+            this.soundEffects=spb.build();
+        } else {
+            this.soundEffects=new SoundPool(5, AudioManager.STREAM_MUSIC, 0);
+        }
+
+        mediaPlayer=MediaPlayer.create(getApplicationContext(),R.raw.play_game);
+        btnSound = soundEffects.load(getApplicationContext(),R.raw.click,1);
         inicializateComponentsMain();
+        mediaPlayer.setLooping(true);
+        mediaPlayer.start();
     }
 
+    /**
+     * Change layaout by a index that is the id of the layout.
+     * @param layoutIndex id of the layout
+     */
     private void changeLayout(int layoutIndex){
         actualLayout = layoutIndex;
     }
 
+    /**
+     * Set the view 'menu_main' and inicializate his components.
+     */
+    public void setContentViewMain(){
+        changeLayout(LAYOUT_MAIN);
+        inicializateComponentsMain();
+    }
+
+    /**
+     * Inicializate components of the view 'menu_main'
+     */
     private void inicializateComponentsMain(){
+        volume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
         Button btnPlay = findViewById(R.id.btnNewGame_main);
         Button btnCredits = findViewById(R.id.btnBackCredits);
         Button btnOptions = findViewById(R.id.btnOption);
@@ -52,6 +102,9 @@ public class MainActivity extends AppCompatActivity {
         btnPlay.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if(options.isMusic()) {
+                    soundEffects.play(btnSound, volume, volume, 1, 0, 1);
+                }
                 changeLayout(LAYOUT_PLAY);
                 setContentView(actualLayout);
                 inicializateComponentsPlay();
@@ -64,6 +117,10 @@ public class MainActivity extends AppCompatActivity {
         btnCredits.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if(options.isMusic()) {
+                    soundEffects.play(btnSound, volume, volume, 1, 0, 1);
+                }
+                audioManager.playSoundEffect(AudioManager.FX_KEYPRESS_SPACEBAR);
                 changeLayout(LAYOUT_CREDITS);
                 setContentView(actualLayout);
                 inicializateComponentsCredits();
@@ -76,6 +133,9 @@ public class MainActivity extends AppCompatActivity {
         btnOptions.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if(options.isMusic()) {
+                    soundEffects.play(btnSound, volume, volume, 1, 0, 1);
+                }
                 changeLayout(LAYOUT_OPTIONS);
                 setContentView(actualLayout);
                 inicializateComponentsOptions();
@@ -88,6 +148,9 @@ public class MainActivity extends AppCompatActivity {
         btnProfile.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if(options.isMusic()) {
+                    soundEffects.play(btnSound, volume, volume, 1, 0, 1);
+                }
                 changeLayout(LAYOUT_PROFILE);
                 setContentView(actualLayout);
                 inicializateComponentsProfile();
@@ -98,7 +161,11 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Inicializate components of the view 'menu_options'
+     */
     private void inicializateComponentsOptions(){
+        volume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
         final Button btnMusic = findViewById(R.id.btnMusic);
         final Button btnVibration = findViewById(R.id.btnVibration);
         final Button btnLanguage = findViewById(R.id.btnLanguage);
@@ -107,6 +174,9 @@ public class MainActivity extends AppCompatActivity {
         btnBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if(options.isMusic()) {
+                    soundEffects.play(btnSound, volume, volume, 1, 0, 1);
+                }
                 onBackPressed();
             }
         });
@@ -126,6 +196,9 @@ public class MainActivity extends AppCompatActivity {
         btnLanguage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if(options.isMusic()) {
+                    soundEffects.play(btnSound, volume, volume, 1, 0, 1);
+                }
                 Configuration configuration;
                 configuration = new Configuration(res.getConfiguration());
                 if(options.getLanguage().equals(Language.ESPAÑOL)){
@@ -147,6 +220,9 @@ public class MainActivity extends AppCompatActivity {
         btnMusic.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if(options.isMusic()) {
+                    soundEffects.play(btnSound, volume, volume, 1, 0, 1);
+                }
                 options.setMusic(!options.isMusic());
                 if(options.isMusic()){
                     btnMusic.setText(R.string.menu_options_music_on);
@@ -163,6 +239,9 @@ public class MainActivity extends AppCompatActivity {
         btnVibration.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if(options.isMusic()) {
+                    soundEffects.play(btnSound, volume, volume, 1, 0, 1);
+                }
                 options.setVibration(!options.isVibration());
                 if(options.isVibration()){
                     vibrate();
@@ -174,7 +253,11 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Inicializate components of the view 'menu_play'
+     */
     private void inicializateComponentsPlay(){
+        volume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
         Button btnNewGame = findViewById(R.id.btnNewGame_main);
         Button btnTutorial = findViewById(R.id.btnTutorial);
         Button btnBack = findViewById(R.id.btnBackPlay);
@@ -182,6 +265,9 @@ public class MainActivity extends AppCompatActivity {
         btnBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if(options.isMusic()) {
+                    soundEffects.play(btnSound, volume, volume, 1, 0, 1);
+                }
                 onBackPressed();
             }
         });
@@ -189,15 +275,26 @@ public class MainActivity extends AppCompatActivity {
         btnNewGame.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if(options.isMusic()) {
+                    soundEffects.play(btnSound, volume, volume, 1, 0, 1);
+                }
                 if(options.isVibration()) {
                     vibrate();
                 }
+
+                setScrenOrientation(true);
+                game = new GameView(getApplicationContext(),mainActivity);
+                setContentView(game);
+                game.setKeepScreenOn(true);
             }
         });
 
         btnTutorial.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if(options.isMusic()) {
+                    soundEffects.play(btnSound, volume, volume, 1, 0, 1);
+                }
                 if(options.isVibration()) {
                     vibrate();
                 }
@@ -205,7 +302,11 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Inicializate components of the view 'menu_credits'
+     */
     private void inicializateComponentsCredits(){
+        volume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
         TextView txvCredits = findViewById(R.id.txvCredits);
         String[] creditsTotal = res.getStringArray(R.array.list_credits);
         String text = "";
@@ -219,22 +320,35 @@ public class MainActivity extends AppCompatActivity {
         btnBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if(options.isMusic()) {
+                    soundEffects.play(btnSound, volume, volume, 1, 0, 1);
+                }
                 onBackPressed();
             }
         });
     }
 
+    /**
+     * Inicializate components of the view 'menu_profile'
+     */
     private void inicializateComponentsProfile(){
+        volume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
         final Button btnBack = findViewById(R.id.btnBackProfile);
 
         btnBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if(options.isMusic()) {
+                    soundEffects.play(btnSound, volume, volume, 1, 0, 1);
+                }
                 onBackPressed();
             }
         });
     }
 
+    /**
+     * Change of view when back button is pressed
+     */
     @Override
     public void onBackPressed() {
         if(actualLayout == LAYOUT_CREDITS || actualLayout == LAYOUT_OPTIONS ||
@@ -248,11 +362,17 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Activate the vibration during 50 miliseconds
+     */
     private void vibrate(){
         Vibrator vibrator = (Vibrator) getSystemService(getApplicationContext().VIBRATOR_SERVICE);
         vibrator.vibrate(50);
     }
 
+    /**
+     * Set full screen mode on the device
+     */
     private void setFullScreen(){
         View decorView = getWindow().getDecorView();
         decorView.setSystemUiVisibility(
@@ -281,10 +401,28 @@ public class MainActivity extends AppCompatActivity {
         preferences.edit().putString("language",options.getLanguage().toString()).apply();
     }
 
+    /**
+     * Get the option class and variable values save on SharedPreferences
+     * @param sharedPreferences shared preferenced witch contains Options class variables
+     */
     private void getOptionsFromPreferences(SharedPreferences sharedPreferences){
         this.options.setVibration( preferences.getBoolean("vibration",false));
         this.options.setMusic( preferences.getBoolean("music",false));
         String language = preferences.getString("language","ENGLISH");
         this.options.setLanguage(Language.valueOf(language));
+    }
+
+    /**
+     * Set screen orientation by a boolean variable
+     * @param screnOrientation true - landscape , false - portait
+     */
+    public void setScrenOrientation(boolean screnOrientation) {
+        this.screnOrientation = screnOrientation;
+
+        if(screnOrientation){
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+        }else{
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        }
     }
 }

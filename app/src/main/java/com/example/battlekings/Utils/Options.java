@@ -1,7 +1,8 @@
-package com.example.battlekings;
+package com.example.battlekings.Utils;
 
-import android.app.Application;
 import android.content.Context;
+
+import com.example.battlekings.Language;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
