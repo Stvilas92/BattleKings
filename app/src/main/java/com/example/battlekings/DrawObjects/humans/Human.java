@@ -276,28 +276,36 @@ public class Human implements GameObject {
         }
     }
 
-    public int[] getBoxesOcuped() {
-        return boxesOcuped;
-    }
-
-    public HumanState getHumanState() {
-        return humanState;
-    }
-
+    /**
+     * Set the actual human state
+     * @param state State of the human , can be ON_ACTION,STOPPED or WALKING
+     */
     public void setHumanState(HumanState state) {
         this.humanState = state;
     }
 
+    /**
+     * Set if the actual human is selected or no
+     * @return actual human is selected or no
+     */
     @Override
     public boolean isSelected() {
         return selected;
     }
 
+    /**
+     * Get size Y of the human box
+     * @return size Y of the human box
+     */
     @Override
     public int getSizeX() {
         return this.sizeX;
     }
 
+    /**
+     * Get size X of the human box
+     * @return size X of the human box
+     */
     @Override
     public int getSizeY() {
         return this.sizeY;
@@ -599,11 +607,22 @@ public class Human implements GameObject {
         return selecttingMode;
     }
 
+    /**
+     * Set the human on selecting mode or no
+     * @param selectingMode true selectingMode on, false selecting mode off
+     */
     @Override
     public void setSelectingMode(boolean selectingMode) {
         this.selecttingMode = selectingMode;
     }
 
+    /**
+     * Manage the scrren touch on a human
+     * @param selecttingMode actual selectingMode enabled or no
+     * @param x screen x
+     * @param y screen y
+     * @param boxSelected actual box selected or no
+     */
     @Override
     public void onTouchObject(boolean selecttingMode, int x,int y,int boxSelected) {
         if(!this.selected){
@@ -760,6 +779,10 @@ public class Human implements GameObject {
         return selecttingMode;
     }
 
+    /**
+     * Set the human on selecting mode or no
+     * @param selecttingMode true selectingMode on, false selecting mode off
+     */
     public void setSelecttingMode(boolean selecttingMode) {
         this.selecttingMode = selecttingMode;
         if(selecttingMode) {
@@ -770,6 +793,10 @@ public class Human implements GameObject {
 
     }
 
+    /**
+     * Set a box destiny to the human actual.
+     * @param boxDestiny box index that will be the human destiny
+     */
     public void setBoxDestiny(int boxDestiny) {
         if(boxes[boxDestiny].getGameObject() == null) {
             this.boxDestiny = boxDestiny;

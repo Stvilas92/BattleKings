@@ -5,6 +5,10 @@ import android.graphics.Bitmap;
 
 import com.example.battlekings.Utils.BitmapManager;
 
+/**
+ * Class wittch represent a division of the screen on boxes
+ * with a specified size x and y
+ */
 public class ScreenDivider {
     private int w,h,boxSizeX,boxSizeY;
     private Box[] boxes;
@@ -26,6 +30,10 @@ public class ScreenDivider {
         }
     }
 
+    /**
+     * Get array of boxes called 'boxes'
+     * @return boxes
+     */
     public Box[] getBoxes() {
         return boxes;
     }

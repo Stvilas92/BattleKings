@@ -64,6 +64,12 @@ public class Nature implements GameObject {
         pText.setTextSize(boxes[0].getSizeY()/2);
     }
 
+    /**
+     * Draw the nature object
+     * @param c Canvas
+     * @param x Point x
+     * @param y Point x
+     */
     @Override
     public void drawObject(Canvas c, int x, int y) {
         if(c != null) {
@@ -71,6 +77,10 @@ public class Nature implements GameObject {
         }
     }
 
+    /**
+     * Draw the action bar buttons of the nature object
+     * @param c Canvas
+     */
     @Override
     public void drawInActionBar(Canvas c) {
         for (int i = 0; i < rectActions.length; i++) {
@@ -83,16 +93,30 @@ public class Nature implements GameObject {
         }
     }
 
+    /**
+     * Do the action of the buttons of the action bar, if the buttons have actions.
+     * @param x Point x to localize the button
+     * @param y Point y to localize the button
+     * @return OnTouchBarObjectResult, in this case, always return NONE
+     */
     @Override
     public OnTouchBarObjectResult onTouchActionBarObject(int x, int y) {
         return OnTouchBarObjectResult.NONE;
     }
 
+    /**
+     * Get the object id
+     * @return object id
+     */
     @Override
     public int getObjectID() {
         return this.id;
     }
 
+    /**
+     * Get the object bitmap
+     * @return object bitmap
+     */
     @Override
     public Bitmap getBitmap() {
         if(this.natureBitmap != null) {
@@ -102,6 +126,9 @@ public class Nature implements GameObject {
         }
     }
 
+    /**
+     * Get boxes to draw the actual nature object
+     */
     private void getBoxesToDraw(){
         boxesOcuped = new int[sizeX*sizeY];
         int index = 0 ;
@@ -119,7 +146,10 @@ public class Nature implements GameObject {
         }
     }
 
-
+    /**
+     * Charge the bitmaps to draw and the boxes witch will be occuped by him.
+     * Put the object on boxes array and charge the value init resources
+     */
     private void makeObjectToDraw(){
         switch (natureType) {
             case ROCK:
@@ -149,6 +179,9 @@ public class Nature implements GameObject {
         this.actualResources = this.initResources;
     }
 
+    /**
+     * Make the actions of the drawActionsBar buttons
+     */
     private void makeRectActions(){
         rectActions = new Rect[RECTS_NUMBER];
 
@@ -157,52 +190,75 @@ public class Nature implements GameObject {
         }
     }
 
-    public int[] getBoxesOcuped() {
-        return boxesOcuped;
-    }
-
-    public NatureState getNatureState() {
-        return natureState;
-    }
-
-    public void setNatureState(NatureState natureState) {
-        this.natureState = natureState;
-    }
-
+    /**
+     * Get if building is selected
+     * @return
+     */
     public boolean isSelected() {
         return selected;
     }
 
+    /**
+     * Get the size X of the nature object
+     * @return size X of the nature object
+     */
     @Override
     public int getSizeX() {
         return this.sizeX;
     }
 
+    /**
+     * Get the size Y of the nature object
+     * @return size Y of the nature object
+     */
     @Override
     public int getSizeY() {
         return this.sizeY;
     }
 
+    /**
+     * Set if nature is selected
+     * @return selected, yes -true, no - false
+     */
     @Override
     public void setSelected(boolean selected) {
         this.selected = selected;
     }
 
+    /**
+     * Manage a touch when the nature is selected
+     * @param boxIndex box touched when the nature is selected
+     * @return  box touched when the nature is selected
+     */
     @Override
     public int  onTouchWhenSelected(int boxIndex) {
         return boxIndex;
     }
 
+    /**
+     * Get if the nature is in selecting mode
+     * @return if the nature is in selecting mode
+     */
     @Override
     public boolean isSelectingMode() {
         return false;
     }
 
+    /**
+     * Set if the nature is in selecting mode
+     * @param selectingMode selecting mode of the nature
+     */
     @Override
     public void setSelectingMode(boolean selectingMode) {
-
     }
 
+    /**
+     * Manage the object when is touched
+     * @param selectingMode is the object on selecting mode or no
+     * @param x point x
+     * @param y point y
+     * @param boxSelected actual box selected
+     */
     @Override
     public void onTouchObject(boolean selectingMode, int x,int y,int boxSelected) {
         if(!isSelected() && !selectingMode){
@@ -211,10 +267,18 @@ public class Nature implements GameObject {
         }
     }
 
+    /**
+     * Get the actual resources of the nature
+     * @return actual resources of the nature
+     */
     public int getActualResources() {
         return actualResources;
     }
 
+    /**
+     * Set the actual resources of the nature
+     * @param actualResources actual resources of the nature
+     */
     public void setActualResources(int actualResources) {
         this.actualResources = actualResources;
         if(this.actualResources <= 0){
@@ -222,21 +286,11 @@ public class Nature implements GameObject {
         }
     }
 
-    public int getInitResources() {
-        return initResources;
-    }
-
-    public void setInitResources(int initResources) {
-        this.initResources = initResources;
-    }
-
+    /**
+     * Get the actual nature type
+     * @return actual nature type
+     */
     public NatureType getNatureType() {
         return natureType;
     }
-
-    public void setNatureType(NatureType natureType) {
-        this.natureType = natureType;
-    }
-
-
 }

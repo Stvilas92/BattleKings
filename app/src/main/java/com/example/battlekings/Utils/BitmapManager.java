@@ -43,26 +43,51 @@ public class BitmapManager {
         getAllBitmapts();
     }
 
+    /**
+     * Get the bitmap of the surface scaled on a specied size
+     * @param sizeBoxX size x of the box witch will contain the bitmap
+     * @param sizeBoxY size y of the box witch will contain the bitmap
+     * @param context application contex
+     * @return bitmap of the surface scaled on a specied size
+     */
     public static Bitmap getOnlySurface(int sizeBoxX, int sizeBoxY, Context context){
         Bitmap bitmapSurface = getBitmapFromAssets("surface.png",context);
         bitmapSurface = Bitmap.createScaledBitmap(bitmapSurface, sizeBoxX, sizeBoxY,false);
         return  bitmapSurface;
     }
 
+    /**
+     * Scale a bitmap by height
+     * @param res Bitmap to sacale
+     * @param newHeight new height of the bitmap
+     * @return bitmap sacaled
+     */
     public static Bitmap scaleByHeight(Bitmap res, int newHeight) {
         if (newHeight==res.getHeight()) return res;
         return res.createScaledBitmap(res, (res.getWidth() * newHeight) /
                 res.getHeight(), newHeight, true);
     }
 
+    /**
+     * Scale a bitmap by height
+     * @param res Bitmap to sacale
+     * @param newHeight new height of the bitmap
+     * @param newWidth new width of the bitmap
+     * @return bitmap sacaled
+     */
     public static Bitmap scale(Bitmap res, int newWidth, int newHeight){
         return res.createScaledBitmap(res,newWidth, newHeight,true);
     }
 
-    public static Bitmap getBitmapFromAssets(String fichero, Context context) {
+    /**
+     * Get a bitmap from a assets folder
+     * @param file file of the assets folder to convert on bitmap
+     * @return bitmap charge from file of the assets folder
+     */
+    public static Bitmap getBitmapFromAssets(String file, Context context) {
         try
         {
-            InputStream is= context.getAssets().open(fichero);
+            InputStream is= context.getAssets().open(file);
             return BitmapFactory.decodeStream(is);
         }
         catch (IOException e) {
@@ -70,6 +95,9 @@ public class BitmapManager {
         }
     }
 
+    /**
+     * Get all the bitmaps of the game
+     */
     private void getAllBitmapts(){
         getNatureBitmaps(NatureType.ROCK);
         getNatureBitmaps(NatureType.WOOD);
@@ -81,6 +109,10 @@ public class BitmapManager {
         getUnitsBitmaps(HumanType.SOLDIER);
     }
 
+    /**
+     * Chargue the bitmaps of the nature specified
+     * @param natureType nature specified,ROCK,FOOD or WOOD
+     */
     private void getNatureBitmaps(NatureType natureType){
         switch (natureType) {
             case ROCK:
@@ -106,6 +138,10 @@ public class BitmapManager {
         }
     }
 
+    /**
+     * Chargue the bitmaps of the build specified
+     * @param buildingType build specified,MAIN or TOWER
+     */
     private void getBuildBitmaps(BuildingType buildingType){
         switch (buildingType) {
             case MAIN:
@@ -121,6 +157,10 @@ public class BitmapManager {
         }
     }
 
+    /**
+     * Chargue the bitmaps of the unit specified
+     * @param humanType unit specified,SOLDIER,VILLAGER or CONSTRUCTOR
+     */
     public void getUnitsBitmaps(HumanType humanType){
         switch (humanType) {
             case SOLDIER:
@@ -259,102 +299,170 @@ public class BitmapManager {
         }
     }
 
+    /**
+     * Get the bitmap natureRock
+     * @return bitmap natureRock
+     */
     public Bitmap getNatureRock() {
         return natureRock;
     }
 
+    /**
+     * Get the bitmap natureWood
+     * @return bitmap natureWood
+     */
     public Bitmap getNatureWood() {
         return natureWood;
     }
 
+    /**
+     * Get the bitmap natureFood
+     * @return bitmap natureFood
+     */
     public Bitmap getNatureFood() {
         return natureFood;
     }
 
+    /**
+     * Get the bitmap natureTypeRock
+     * @return bitmap natureTypeRock
+     */
     public Bitmap getNatureTypeRock() {
         return natureTypeRock;
     }
 
+    /**
+     * Get the bitmap natureTypeWood
+     * @return bitmap natureTypeWood
+     */
     public Bitmap getNatureTypeWood() {
         return natureTypeWood;
     }
 
+    /**
+     * Get the bitmap natureTypeFood
+     * @return bitmap natureTypeFood
+     */
     public Bitmap getNatureTypeFood() {
         return natureTypeFood;
     }
 
+    /**
+     * Get the bitmap buildMain
+     * @return bitmap buildMain
+     */
     public Bitmap getBuildMain() {
         return buildMain;
     }
 
+    /**
+     * Get the bitmap buildTower
+     * @return bitmap buildTower
+     */
     public Bitmap getBuildTower() {
         return buildTower;
     }
 
+    /**
+     * Get the bitmapSoldier
+     * @return bitmapSoldier
+     */
     public Bitmap getBitmapSoldier() {
         return bitmapSoldier;
     }
 
+    /**
+     * Get the bitmapConstructor
+     * @return bitmapConstructor
+     */
     public Bitmap getBitmapConstructor() {
         return bitmapConstructor;
     }
 
+    /**
+     * Get the bitmapVillager
+     * @return bitmapVillager
+     */
     public Bitmap getBitmapVillager() {
         return bitmapVillager;
     }
 
-    public Bitmap getBitmapExit() {
-        return bitmapExit;
-    }
-
+    /**
+     * Get the bitmapActionSword
+     * @return bitmapActionSword
+     */
     public Bitmap getBitmapActionSword() {
         return bitmapActionSword;
     }
 
+    /**
+     * Get the hashmap of actions of the  constructor
+     * @return hashmap of actions of the  constructor
+     */
     public HashMap<HumanOrientation, Bitmap[]> getConstructorAction() {
         return constructorAction;
     }
 
+    /**
+     * Get the hashmap of walking of the  constructor
+     * @return hashmap of walking of the  constructor
+     */
     public HashMap<HumanOrientation, Bitmap[]> getConstructorWalking() {
         return constructorWalking;
     }
 
-    public HashMap<HumanOrientation, Bitmap[]> getConstructorDead() {
-        return constructorDead;
-    }
-
+    /**
+     * Get the hashmap of actions of the  constructor
+     * @return hashmap of actions of the  constructor
+     */
     public HashMap<HumanOrientation, Bitmap[]> getSoldierAction() {
         return soldierAction;
     }
 
+    /**
+     * Get the hashmap of walking of the  constructor
+     * @return hashmap of walking of the  constructor
+     */
     public HashMap<HumanOrientation, Bitmap[]> getSoldierWalking() {
         return soldierWalking;
     }
 
+    /**
+     * Get the hashmap of dead of the  constructor
+     * @return hashmap of dead of the  constructor
+     */
     public HashMap<HumanOrientation, Bitmap[]> getSoldierDead() {
         return soldierDead;
     }
 
+    /**
+     * Get the hashmap of actions of the  constructor
+     * @return hashmap of actions of the  constructor
+     */
     public HashMap<HumanOrientation, Bitmap[]> getVillagerAction() {
         return villagerAction;
     }
 
+    /**
+     * Get the hashmap of walking of the  constructor
+     * @return hashmap of walking of the  constructor
+     */
     public HashMap<HumanOrientation, Bitmap[]> getVillagerWalking() {
         return villagerWalking;
     }
 
-    public HashMap<HumanOrientation, Bitmap[]> getVillagerDead() {
-        return villagerDead;
-    }
-
-    public Bitmap getBitmapSurface() {
-        return bitmapSurface;
-    }
-
+    /**
+     * Get the bitmapActionHandWhite
+     * @return bitmapActionHandWhite
+     */
     public Bitmap getBitmapActionHandWhite() {
         return bitmapActionHandWhite;
     }
 
+    /**
+     * Get the bitmapActionHandYellow
+     * @return bitmapActionHandYellow
+     */
     public Bitmap getBitmapActionHandYellow() {
         return bitmapActionHandYellow;
     }

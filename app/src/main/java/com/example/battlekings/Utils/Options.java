@@ -26,49 +26,50 @@ public class Options {
         this.language = language;
     }
 
-    public void  getOptionsFromProperties(){
-        Properties prop = new Properties();
-
-        try (InputStream inputStream = new FileInputStream(PROPERTIES_FILENAME)){
-            if (inputStream != null) {
-                prop.load(inputStream);
-            } else {
-                throw new FileNotFoundException("property file '" + PROPERTIES_FILENAME + "' not found in the classpath");
-            }
-
-            this.vibration = Boolean.parseBoolean(prop.getProperty("vibration"));
-            this.music  = Boolean.parseBoolean(prop.getProperty("music"));
-
-            if(prop.getProperty("language").equals("Español")){
-                this.language = Language.ESPAÑOL;
-            }else if(prop.getProperty("language").equals("English")){
-                this.language = Language.ENGLISH;
-            }
-        } catch (Exception e) {
-            System.out.println("Exception: " + e);
-        }
-    }
-
+    /**
+     * Get if vibration is activated
+     * @return boolean, true if vibration is activated, else, false
+     */
     public boolean isVibration() {
         return vibration;
     }
 
+    /**
+     * St if vibration is activated
+     * @param vibration boolean, true if vibration is activated, else, false
+     */
     public void setVibration(boolean vibration) {
         this.vibration = vibration;
     }
 
+    /**
+     * Get if music is activated
+     * @return boolean, true if music is activated, else, false
+     */
     public boolean isMusic() {
         return music;
     }
 
+    /**
+     * Set if music is activated
+     * @param music boolean, true if music is activated, else, false
+     */
     public void setMusic(boolean music) {
         this.music = music;
     }
 
+    /**
+     * Get the actual language
+     * @return actual language
+     */
     public Language getLanguage() {
         return language;
     }
 
+    /**
+     * Set the actual language
+     * @param language  actual language
+     */
     public void setLanguage(Language language) {
         this.language = language;
     }

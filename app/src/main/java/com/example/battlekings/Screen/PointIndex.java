@@ -8,19 +8,20 @@ public class PointIndex {
         this.indexY = indexY;
     }
 
+    /**
+     * Get the index X of the point
+     * @return
+     */
     public int getIndexX() {
         return indexX;
     }
 
-    public void setIndexX(int indexX) {
-        this.indexX = indexX;
-    }
-
+    /**
+     * Get the index Y of the point
+     * @return
+     */
     public int getIndexY() {
         return indexY;
     }
 
-    public void setIndexY(int indexY) {
-        this.indexY = indexY;
-    }
 }

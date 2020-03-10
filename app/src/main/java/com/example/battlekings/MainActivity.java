@@ -1,21 +1,36 @@
 package com.example.battlekings;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.media.AudioAttributes;
 import android.media.AudioManager;
+import android.media.Image;
 import android.media.MediaPlayer;
 import android.media.SoundPool;
 import android.os.Bundle;
 import android.os.Vibrator;
+import android.provider.MediaStore;
+import android.text.InputType;
+import android.util.DisplayMetrics;
+import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.battlekings.Screen.GameView;
 import com.example.battlekings.Utils.Options;
@@ -28,31 +43,52 @@ public class MainActivity extends AppCompatActivity {
     private static final int LAYOUT_OPTIONS = R.layout.menu_options;
     private static final int LAYOUT_PROFILE = R.layout.menu_profile;
     private static final int LAYOUT_CREDITS = R.layout.menu_credits;
+    private static final int REQUEST_IMAGE_CAPTURE = 1;
 
-    SharedPreferences preferences;
+
+    private MediaPlayer mediaPlayer;
+    private SharedPreferences preferences;
     private Options options;
     private int actualLayout = LAYOUT_MAIN;
-    private GameView game;
     private Resources res;
-    private boolean screnOrientation = false;
-    private MainActivity mainActivity;
-    private boolean flagInitGame = false;
+    private BD bd;
+    private ImageView imageView;
+    private AlertDialog.Builder builder;
+    private TextView tvUsernameValue;
     private AudioManager audioManager;
     private SoundPool soundEffects;
     private int btnSound,volume;
-    private MediaPlayer mediaPlayer;
+    private MainActivity mainActivity;
+    private boolean screnOrientation = false;
+    private GameView game;
+    private boolean flagInit = false,gameRunning = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setFullScreen();
+        createDialog();
         preferences = getPreferences(getApplicationContext().MODE_PRIVATE);
         options = new Options(false,false,Language.ENGLISH);
         getOptionsFromPreferences(preferences);
-//        options = new Options(this);
-//        options.getOptionsFromProperties();
         setContentView(actualLayout);
+
+        //Audio
         res = this.getResources();
+        mediaPlayer = MediaPlayer.create(this,R.raw.main_music);
+        audioManager = (AudioManager)this.getSystemService(Context.AUDIO_SERVICE);
+        int v=audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
+        mediaPlayer.setVolume(v/2,v/2);
+
+        bd= new BD(this,"game",null,1);
+        SQLiteDatabase db = bd.getWritableDatabase();
+        if(db != null){
+            PlayerData data = new PlayerData(10,5,9,124,3,7,2);
+            bd.putData(db,data);
+            db.close();
+        }
+
+        //Main menu
+        inicializateComponentsMain();
         mainActivity = this;
         audioManager=(AudioManager)getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
 
@@ -71,6 +107,13 @@ public class MainActivity extends AppCompatActivity {
         inicializateComponentsMain();
         mediaPlayer.setLooping(true);
         mediaPlayer.start();
+        volume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
+
+        setFullScreen();
+        if(flagInit){
+            initGame();
+            flagInit = false;
+        }
     }
 
     /**
@@ -80,6 +123,7 @@ public class MainActivity extends AppCompatActivity {
     private void changeLayout(int layoutIndex){
         actualLayout = layoutIndex;
     }
+
 
     /**
      * Set the view 'menu_main' and inicializate his components.
@@ -93,18 +137,14 @@ public class MainActivity extends AppCompatActivity {
      * Inicializate components of the view 'menu_main'
      */
     private void inicializateComponentsMain(){
-        volume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
         Button btnPlay = findViewById(R.id.btnSurvive);
-        Button btnCredits = findViewById(R.id.btnBackCredits);
+        Button btnCredits = findViewById(R.id.btnCredits);
         Button btnOptions = findViewById(R.id.btnOption);
         Button btnProfile =  findViewById(R.id.btnProfile);
 
         btnPlay.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(options.isMusic()) {
-                    soundEffects.play(btnSound, volume, volume, 1, 0, 1);
-                }
                 changeLayout(LAYOUT_PLAY);
                 setContentView(actualLayout);
                 inicializateComponentsPlay();
@@ -114,13 +154,17 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        btnPlay.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                btnTouch(v,event);
+                return false;
+            }
+        });
+
         btnCredits.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(options.isMusic()) {
-                    soundEffects.play(btnSound, volume, volume, 1, 0, 1);
-                }
-                audioManager.playSoundEffect(AudioManager.FX_KEYPRESS_SPACEBAR);
                 changeLayout(LAYOUT_CREDITS);
                 setContentView(actualLayout);
                 inicializateComponentsCredits();
@@ -130,12 +174,17 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        btnCredits.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                btnTouch(v,event);
+                return false;
+            }
+        });
+
         btnOptions.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(options.isMusic()) {
-                    soundEffects.play(btnSound, volume, volume, 1, 0, 1);
-                }
                 changeLayout(LAYOUT_OPTIONS);
                 setContentView(actualLayout);
                 inicializateComponentsOptions();
@@ -145,12 +194,17 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        btnOptions.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                btnTouch(v,event);
+                return false;
+            }
+        });
+
         btnProfile.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(options.isMusic()) {
-                    soundEffects.play(btnSound, volume, volume, 1, 0, 1);
-                }
                 changeLayout(LAYOUT_PROFILE);
                 setContentView(actualLayout);
                 inicializateComponentsProfile();
@@ -159,13 +213,20 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+
+        btnProfile.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                btnTouch(v,event);
+                return false;
+            }
+        });
     }
 
     /**
      * Inicializate components of the view 'menu_options'
      */
     private void inicializateComponentsOptions(){
-        volume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
         final Button btnMusic = findViewById(R.id.btnMusic);
         final Button btnVibration = findViewById(R.id.btnVibration);
         final Button btnLanguage = findViewById(R.id.btnLanguage);
@@ -174,10 +235,14 @@ public class MainActivity extends AppCompatActivity {
         btnBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(options.isMusic()) {
-                    soundEffects.play(btnSound, volume, volume, 1, 0, 1);
-                }
                 onBackPressed();
+            }
+        });
+        btnBack.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                btnTouch(v,event);
+                return false;
             }
         });
 
@@ -196,10 +261,8 @@ public class MainActivity extends AppCompatActivity {
         btnLanguage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(options.isMusic()) {
-                    soundEffects.play(btnSound, volume, volume, 1, 0, 1);
-                }
-                Configuration configuration;
+                android.content.res.Configuration configuration;
+                DisplayMetrics dm = res.getDisplayMetrics();
                 configuration = new Configuration(res.getConfiguration());
                 if(options.getLanguage().equals(Language.ESPAÑOL)){
                     options.setLanguage(Language.ENGLISH);
@@ -214,15 +277,21 @@ public class MainActivity extends AppCompatActivity {
                 }
                 //TODO pendiente de hacer
                 getApplicationContext().createConfigurationContext(configuration);
+                res.updateConfiguration(configuration,dm);
+            }
+        });
+
+        btnLanguage.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                btnTouch(v,event);
+                return false;
             }
         });
 
         btnMusic.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(options.isMusic()) {
-                    soundEffects.play(btnSound, volume, volume, 1, 0, 1);
-                }
                 options.setMusic(!options.isMusic());
                 if(options.isMusic()){
                     btnMusic.setText(R.string.menu_options_music_on);
@@ -236,12 +305,17 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        btnMusic.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                btnTouch(v,event);
+                return false;
+            }
+        });
+
         btnVibration.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(options.isMusic()) {
-                    soundEffects.play(btnSound, volume, volume, 1, 0, 1);
-                }
                 options.setVibration(!options.isVibration());
                 if(options.isVibration()){
                     vibrate();
@@ -251,13 +325,20 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+
+        btnVibration.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                btnTouch(v,event);
+                return false;
+            }
+        });
     }
 
     /**
      * Inicializate components of the view 'menu_play'
      */
     private void inicializateComponentsPlay(){
-        volume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
         Button btnNewGame = findViewById(R.id.btnSurvive);
         Button btnTutorial = findViewById(R.id.btnTutorial);
         Button btnBack = findViewById(R.id.btnBackPlay);
@@ -265,39 +346,60 @@ public class MainActivity extends AppCompatActivity {
         btnBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(options.isMusic()) {
-                    soundEffects.play(btnSound, volume, volume, 1, 0, 1);
-                }
                 onBackPressed();
+            }
+        });
+
+        btnBack.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                btnTouch(v,event);
+                return false;
             }
         });
 
         btnNewGame.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(options.isMusic()) {
-                    soundEffects.play(btnSound, volume, volume, 1, 0, 1);
-                }
                 if(options.isVibration()) {
                     vibrate();
                 }
 
                 setScrenOrientation(true);
-                game = new GameView(getApplicationContext(),mainActivity);
-                setContentView(game);
-                game.setKeepScreenOn(true);
+//                game = new GameView(getApplicationContext(),mainActivity);
+                flagInit = true;
+//                setContentView(game);
+//                game.setKeepScreenOn(true);
+
+//                if(bd != null) {
+//                    PlayerData data = new PlayerData(10,5,9,124,3,7,2);
+//                    bd.putData(bd.getWritableDatabase(),data);
+//                }
+            }
+        });
+
+        btnNewGame.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                btnTouch(v,event);
+                return false;
             }
         });
 
         btnTutorial.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(options.isMusic()) {
-                    soundEffects.play(btnSound, volume, volume, 1, 0, 1);
-                }
                 if(options.isVibration()) {
                     vibrate();
                 }
+            }
+        });
+
+        btnTutorial.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                btnTouch(v,event);
+                return false;
             }
         });
     }
@@ -306,7 +408,6 @@ public class MainActivity extends AppCompatActivity {
      * Inicializate components of the view 'menu_credits'
      */
     private void inicializateComponentsCredits(){
-        volume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
         TextView txvCredits = findViewById(R.id.txvCredits);
         String[] creditsTotal = res.getStringArray(R.array.list_credits);
         String text = "";
@@ -320,10 +421,15 @@ public class MainActivity extends AppCompatActivity {
         btnBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(options.isMusic()) {
-                    soundEffects.play(btnSound, volume, volume, 1, 0, 1);
-                }
                 onBackPressed();
+            }
+        });
+
+        btnBack.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                btnTouch(v,event);
+                return false;
             }
         });
     }
@@ -332,16 +438,64 @@ public class MainActivity extends AppCompatActivity {
      * Inicializate components of the view 'menu_profile'
      */
     private void inicializateComponentsProfile(){
-        volume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
         final Button btnBack = findViewById(R.id.btnBackProfile);
+        bd = new BD(this,"game",null,1);
+        SQLiteDatabase readble = bd.getReadableDatabase();
+        PlayerData data = new PlayerData();
+        if(readble != null) {
+             data = bd.getTotalData(bd.getReadableDatabase());
+
+             readble.close();
+        }else{
+            Toast.makeText(getApplicationContext(),"Player data is not available at the moment",Toast.LENGTH_SHORT).show();
+            onBackPressed();
+        }
+
+        TextView tvBuildsCreated = findViewById(R.id.txvBuildingsCreatedValue);
+        tvBuildsCreated.setText(""+data.getBuildsCreated());
+        TextView tvBuildsLoss = findViewById(R.id.txvBuildingsLossValue);
+        tvBuildsLoss.setText(""+data.getBuildsLoss());
+        TextView tvBuildsDestroyed = findViewById(R.id.txvBuildingsDestroyedValue);
+        tvBuildsDestroyed.setText(""+data.getBuildsDestroyed());
+        TextView tvResourcesCollected = findViewById(R.id.txvResourcesCollectedValue);
+        tvResourcesCollected.setText(""+data.getResourcesCollected());
+        TextView tvUnitsCreated = findViewById(R.id.txvUnitsCreatedValue);
+        tvUnitsCreated.setText(""+data.getUnitsCreated());
+        TextView tvUnitsLoss = findViewById(R.id.txvUnitsLossValue);
+        tvUnitsLoss.setText(""+data.getUnitsLoss());
+        TextView tvUnitsDestroyed = findViewById(R.id.txvUnitsDestryedValue);
+        tvUnitsDestroyed.setText(""+data.getUnitsDestroyed());
+        tvUsernameValue = findViewById(R.id.txvUsernameValue);
+
+        imageView = findViewById(R.id.imageView);
+//        imageView.setImageDrawable(getDrawable(Android));
+        imageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dispatchTakePictureIntent();
+            }
+        });
+
+        ImageView imgAddUsername = findViewById(R.id.btnChangeName);
+        imgAddUsername.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                builder.show();
+            }
+        });
 
         btnBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(options.isMusic()) {
-                    soundEffects.play(btnSound, volume, volume, 1, 0, 1);
-                }
                 onBackPressed();
+            }
+        });
+
+        btnBack.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                btnTouch(v,event);
+                return false;
             }
         });
     }
@@ -385,20 +539,35 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+
     @Override
     protected void onResume() {
         super.onResume();
-        setFullScreen();
+        volume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
         preferences = getPreferences(getApplicationContext().MODE_PRIVATE);
         getOptionsFromPreferences(preferences);
+        if(!mediaPlayer.isPlaying() && options.isMusic()) {
+            mediaPlayer.start();
+        }
+        setFullScreen();
+        if(gameRunning){
+            setScrenOrientation(true);
+        }
     }
+
 
     @Override
     protected void onPause() {
         super.onPause();
+        volume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
+        if(mediaPlayer.isPlaying()) {
+            mediaPlayer.stop();
+        }
         preferences.edit().putBoolean("vibration",options.isVibration()).apply();
         preferences.edit().putBoolean("music",options.isMusic()).apply();
         preferences.edit().putString("language",options.getLanguage().toString()).apply();
+        preferences.edit().putBoolean("initGame",flagInit).apply();
+        preferences.edit().putBoolean("gameRunning",gameRunning).apply();
     }
 
     /**
@@ -410,6 +579,134 @@ public class MainActivity extends AppCompatActivity {
         this.options.setMusic( preferences.getBoolean("music",false));
         String language = preferences.getString("language","ENGLISH");
         this.options.setLanguage(Language.valueOf(language));
+        this.flagInit = preferences.getBoolean("initGame",false);
+        this.gameRunning = preferences.getBoolean("gameRunning",false);
+    }
+
+    /**
+     * Changues the button view imgage if a button is pressed
+     * @param button button view
+     * @param theMotion motion, ACTION_UP or ACTION_DOWN
+     * @return always true
+     */
+    public boolean btnTouch(View button , MotionEvent theMotion ) {
+        if(options.isMusic()) {
+            soundEffects.play(btnSound, volume, volume, 1, 0, 1);
+        }
+        switch ( theMotion.getAction() ) {
+            case MotionEvent.ACTION_UP:
+                switch (button.getId()){
+                    case R.id.btnBackCredits:
+                    case R.id.btnBackOptions:
+                    case R.id.btnBackPlay:
+                    case R.id.btnBackProfile:
+//                        button.setBackground(getDrawable(R.drawable.green_button01));
+                        break;
+
+                    case R.id.btnSurvive:
+                    case R.id.btnLanguage:
+                        button.setBackground(getDrawable(R.drawable.blue_button00));
+                        break;
+
+                    case R.id.btnMusic:
+                    case R.id.btnCredits:
+                        button.setBackground(getDrawable(R.drawable.yellow_button00));
+                        break;
+
+                    case R.id.btnVibration:
+                    case R.id.btnTutorial:
+                    case R.id.btnOption:
+                        button.setBackground(getDrawable(R.drawable.green_button00));
+                        break;
+
+                    case R.id.btnProfile:
+                        button.setBackground(getDrawable(R.drawable.grey_button00));
+                        break;
+                }
+                break;
+            case MotionEvent.ACTION_DOWN:
+                switch (button.getId()){
+                    case R.id.btnBackCredits:
+                    case R.id.btnBackOptions:
+                    case R.id.btnBackPlay:
+                    case R.id.btnBackProfile:
+//                        button.setBackground(getDrawable(R.drawable.green_button01));
+                        break;
+
+                    case R.id.btnSurvive:
+                    case R.id.btnLanguage:
+                        button.setBackground(getDrawable(R.drawable.blue_button01));
+                        break;
+
+                    case R.id.btnMusic:
+                    case R.id.btnCredits:
+                        button.setBackground(getDrawable(R.drawable.yellow_button01));
+                        break;
+
+                    case R.id.btnVibration:
+                    case R.id.btnTutorial:
+                    case R.id.btnOption:
+                        button.setBackground(getDrawable(R.drawable.green_button01));
+                        break;
+
+                    case R.id.btnProfile:
+                        button.setBackground(getDrawable(R.drawable.grey_button01));
+                        break;
+                }
+                break;
+        }
+        return true;
+    }
+
+    /**
+     * Start the android dprefedefined camera activity
+     */
+    private void dispatchTakePictureIntent() {
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+            startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+        }
+    }
+
+
+    /**
+     * Take image from the camera and put the result on 'imageView'
+     * @param requestCode request code of the activity
+     * @param resultCode result code of activity
+     * @param data Intent of the activity
+     */
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
+            Bundle extras = data.getExtras();
+            Bitmap imageBitmap = (Bitmap) extras.get("data");
+            imageView.setImageBitmap(imageBitmap);
+        }
+    }
+
+    /**
+     * Create a text dialog and put the result on the text box 'tvUsernameValue'
+     */
+    private void createDialog() {
+        builder = new AlertDialog.Builder(this);
+        builder.setTitle("Title");
+
+        final EditText input = new EditText(this);
+        input.setInputType(InputType.TYPE_CLASS_TEXT );
+        builder.setView(input);
+
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                tvUsernameValue.setText(input.getText().toString());
+            }
+        });
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
     }
 
     /**
@@ -424,5 +721,15 @@ public class MainActivity extends AppCompatActivity {
         }else{
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         }
+    }
+
+    /**
+     * Init the game charging the surface view to draw the game graphics
+     */
+    private void initGame(){
+        game = new GameView(getApplicationContext(),mainActivity);
+        setContentView(game);
+        game.setKeepScreenOn(true);
+        gameRunning = true;
     }
 }

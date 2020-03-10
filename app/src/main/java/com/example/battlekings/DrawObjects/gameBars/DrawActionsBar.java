@@ -24,25 +24,45 @@ public class DrawActionsBar {
         this.bitmapButtonPressed = BitmapManager.scale(this.bitmapButtonPressed, (int)(boxSizeX),(int)(boxSizeY));
     }
 
+    /**
+     * The background of the DrawActionsBar
+     * @param c canvas
+     */
     public void draw(Canvas c){
         if(c != null) {
             c.drawBitmap(bitmap, 0, initY, null);
         }
     }
 
+    /**
+     * Get top of the DrawActionsBar
+     * @return Top of the DrawActionsBar
+     */
     public int getInitY() {
         return initY;
     }
 
+    /**
+     * Get screen height of the device
+     * @return screen height of the device
+     */
     public int getScreenHeight() {
         return screenHeight;
     }
 
 
+    /**
+     * Get bitmap of the DrawActionsBar button
+     * @return bitmap of the DrawActionsBar button
+     */
     public Bitmap getBitmapButton() {
         return bitmapButton;
     }
 
+    /**
+     * Get bitmap of the DrawActionsBar button when it´s pressed
+     * @return bitmap of the DrawActionsBar button when it´s pressed
+     */
     public Bitmap getBitmapButtonPressed() {
         return bitmapButtonPressed;
     }

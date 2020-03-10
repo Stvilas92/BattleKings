@@ -32,7 +32,11 @@ public class GameTools {
         }
     }
 
-
+    /**
+     * Get the selected box of param boxes
+     * @param boxes arrays of box where the function will search the box selected
+     * @return box selected. If there are no one selected, returns -1.
+     */
     public static int getSelected(Box[] boxes){
         for (int i = 0; i < boxes.length; i++) {
             if(boxes[i].getGameObject()!= null && boxes[i].getGameObject().isSelected()){

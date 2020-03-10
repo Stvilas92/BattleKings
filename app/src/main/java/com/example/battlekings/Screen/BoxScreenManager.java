@@ -16,6 +16,10 @@ public class BoxScreenManager {
         makeBoxesTodraw(0);
     }
 
+    /**
+     * Make the array boxes witch will be drawed on the creen
+     * @param boxInit box where the program will draw in the point (0,0)
+     */
     private void makeBoxesTodraw(int boxInit){
         int index = 0;
         for (int i = 0; i < onScreenBoxes; i++) {
@@ -37,6 +41,11 @@ public class BoxScreenManager {
         }
     }
 
+    /**
+     * Update the boxes to draw on screen changing the box init.
+     * @param boxInit box where the program will draw in the point (0,0)
+     * @return
+     */
     public Box[] updateBoxesTodraw(int boxInit){
         int index = 0;
         int indexRead = 0;
@@ -66,6 +75,10 @@ public class BoxScreenManager {
     }
 
 
+    /**
+     * Array of boxes that they will be draw on the screen
+     * @return
+     */
     public Box[] getBoxesToDraw() {
         return boxesToDraw;
     }

@@ -85,6 +85,12 @@ public class Building implements GameObject {
         pText.setTextSize(boxes[0].getSizeY()/2);
     }
 
+    /**
+     * Draw the build object
+     * @param c Canvas
+     * @param x Point x
+     * @param y Point x
+     */
     @Override
     public void drawObject(Canvas c, int x, int y) {
         this.c = c;
@@ -93,6 +99,10 @@ public class Building implements GameObject {
         }
     }
 
+    /**
+     * Draw the action bar buttons of the build object
+     * @param c Canvas
+     */
     @Override
     public void drawInActionBar(Canvas c) {
         for (int i = 0; i < rectActions.length; i++) {
@@ -109,22 +119,30 @@ public class Building implements GameObject {
                 c.drawText(buildingState.toString(),rectActions[4].left,rectActions[4].top+pText.getTextSize(),pText);
                 break;
 
-            case WALL:
-                break;
+//            case WALL:
+//                break;
 
             case TOWER:
                 break;
 
-            case CATAPULT:
-                break;
+//            case CATAPULT:
+//                break;
         }
     }
 
+    /**
+     * Get the object id
+     * @return object id
+     */
     @Override
     public int getObjectID() {
         return this.id;
     }
 
+    /**
+     * Get the object bitmap
+     * @return object bitmap
+     */
     @Override
     public Bitmap getBitmap() {
         if(this.buildBitmap != null) {
@@ -134,6 +152,9 @@ public class Building implements GameObject {
         }
     }
 
+    /**
+     * Get boxes to draw the actual build object
+     */
     private void getBoxesToDraw(){
         boxesOcuped = new int[sizeX*sizeY];
         int index = 0 ;
@@ -151,6 +172,12 @@ public class Building implements GameObject {
         }
     }
 
+    /**
+     * Do the action of the buttons of the action bar, if the buttons have actions.
+     * @param x Point x to localize the button
+     * @param y Point y to localize the button
+     * @return OnTouchBarObjectResult, DROP_ALL_SELECTED or NONE
+     */
     public OnTouchBarObjectResult onTouchActionBarObject(int x, int y){
         for (int i = 0; i < rectActions.length; i++) {
             if(rectActions[i].contains(x,y)){
@@ -169,17 +196,11 @@ public class Building implements GameObject {
     }
 
 
-    public Bitmap getBitmapFromAssets(String fichero) {
-        try
-        {
-            InputStream is= context.getAssets().open(fichero);
-            return BitmapFactory.decodeStream(is);
-        }
-        catch (IOException e) {
-            return null;
-        }
-    }
 
+    /**
+     * Charge the bitmaps to draw and the boxes witch will be occuped by him.
+     * Put the object on boxes array and charge the value init resources
+     */
     private void makeObjectToDraw(){
         switch (buildingType) {
             case MAIN:
@@ -217,12 +238,9 @@ public class Building implements GameObject {
         }
     }
 
-    public Bitmap scaleByHeight(Bitmap res, int newHeight) {
-        if (newHeight==res.getHeight()) return res;
-        return res.createScaledBitmap(res, (res.getWidth() * newHeight) /
-                res.getHeight(), newHeight, true);
-    }
-
+    /**
+     * Make the actions of the drawActionsBar buttons
+     */
     private void makeRectActions(){
         switch(buildingType){
             case MAIN:
@@ -234,17 +252,17 @@ public class Building implements GameObject {
                 }
                 break;
 
-            case WALL:
-                rectActions = new Rect[RECTS_NUMBER_WALL];
-                break;
+//            case WALL:
+//                rectActions = new Rect[RECTS_NUMBER_WALL];
+//                break;
 
             case TOWER:
                 rectActions = new Rect[RECTS_NUMBER_TOWER];
                 break;
 
-            case CATAPULT:
-                rectActions = new Rect[RECTS_NUMBER_CATAPULT];
-                break;
+//            case CATAPULT:
+//                rectActions = new Rect[RECTS_NUMBER_CATAPULT];
+//                break;
         }
 
         for (int i = 0; i < rectActions.length; i++) {
@@ -252,51 +270,55 @@ public class Building implements GameObject {
         }
     }
 
-    public int[] getBoxesOcuped() {
-        return boxesOcuped;
-    }
-
-    public BuildingState getState() {
-        return state;
-    }
-
-    public void setState(BuildingState state) {
-        this.state = state;
-    }
-
+    /**
+     * Get if building is selected
+     * @return
+     */
     @Override
     public boolean isSelected() {
         return selected;
     }
 
+    /**
+     * Get the size X of the nature object
+     * @return size X of the nature object
+     */
     @Override
     public int getSizeX() {
         return this.sizeX;
     }
 
+    /**
+     * Get the size Y of the nature object
+     * @return size Y of the nature object
+     */
     @Override
     public int getSizeY() {
         return this.sizeY;
     }
 
+    /**
+     * Set if building is selected
+     * @return selected, yes -true, no - false
+     */
     @Override
     public void setSelected(boolean selected) {
         this.selected = selected;
     }
 
+    /**
+     * Set bitmap of the units, that will be drawed on the drawActionsBar
+     */
     public void setUnitsBitmaps(){
-        this.bitmapConstructor = getBitmapFromAssets("Units/Constructor/Walking/stopped0000.png");
-        this.bitmapConstructor = scaleByHeight(this.bitmapConstructor, this.boxes[0].getSizeY() * sizeY);
-        this.bitmapSoldier = getBitmapFromAssets("Units/Soldier/Walking/stopped0000.png");
-        this.bitmapSoldier = scaleByHeight(this.bitmapSoldier, this.boxes[0].getSizeY() * sizeY);
-        this.bitmapVillager = getBitmapFromAssets("Units/Villager/Walking/stopped0000.png");
-        this.bitmapVillager = scaleByHeight(this.bitmapVillager, this.boxes[0].getSizeY() * sizeY);
+        this.bitmapConstructor = bitmapManager.getBitmapConstructor();
+        this.bitmapSoldier = bitmapManager.getBitmapSoldier();
+        this.bitmapVillager = bitmapManager.getBitmapVillager();
     }
 
-    public BuildingState getBuildingState() {
-        return buildingState;
-    }
-
+    /**
+     * Set the actual building state
+     * @param buildingState actual building state
+     */
     public void setBuildingState(BuildingState buildingState) {
         this.buildingState = buildingState;
 
@@ -331,22 +353,42 @@ public class Building implements GameObject {
         }
     }
 
+    /**
+     * Manage a touch when the build is selected
+     * @param boxIndex box touched when the build is selected
+     * @return  box touched when the build is selected
+     */
     @Override
     public int onTouchWhenSelected(int boxIndex) {
         return boxIndex;
     }
 
+    /**
+     * Get if the build is in selecting mode
+     * @return selecting mode of the build
+     */
     @Override
     public boolean isSelectingMode() {
         return selectingMode;
     }
 
+    /**
+     * Set if the build is in selecting mode
+     * @param selectingMode selecting mode of the build
+     */
     @Override
     public void setSelectingMode(boolean selectingMode) {
         this.selectingMode =  selectingMode;
 
     }
 
+    /**
+     * Manage the object when is touched
+     * @param selecttingMode is the object on selecting mode or no
+     * @param x point x
+     * @param y point y
+     * @param boxSelected actual box selected
+     */
     @Override
     public void onTouchObject(boolean selecttingMode, int x,int y,int boxSelected) {
         if(!isSelected()){
@@ -361,18 +403,34 @@ public class Building implements GameObject {
         }
     }
 
+    /**
+     * Get the actual life of the building
+     * @return actual life of the building
+     */
     public int getActualLife() {
         return actualLife;
     }
 
+    /**
+     * Set the actual life of the building
+     * @param actualLife actual life of the building
+     */
     public void setActualLife(int actualLife) {
         this.actualLife = actualLife;
     }
 
+    /**
+     * Get the build type. Can be MAIN or TOWER
+     * @return
+     */
     public BuildingType getBuildingType() {
         return buildingType;
     }
 
+    /**
+     * Set the build type. Can be MAIN or TOWER
+     * @param buildingType build type. Can be MAIN or TOWER
+     */
     public void setBuildingType(BuildingType buildingType) {
         this.buildingType = buildingType;
     }

@@ -33,11 +33,9 @@ public class DrawResourcesBar {
         this.boxSizeY = boxSizeY;
         this.screenWidth = screenWidth;
         this.context = context;
-
         this.pText = new Paint();
         this.pText.setColor(Color.YELLOW);
         this.pText.setTextSize(boxSizeY/2);
-
         this.pResources = new Paint();
         this.pResources.setColor(Color.BLACK);
         this.rBackgroud = new Rect(0,0,screenWidth,initY);
@@ -49,6 +47,10 @@ public class DrawResourcesBar {
         this.woodBitmap = getBitmap("Resources/wood.png");
     }
 
+    /**
+     * Draw resources bar and rectangles
+     * @param c
+     */
     public void draw(Canvas c){
         if(c != null) {
             c.drawRect(rStone, pResources);
@@ -63,21 +65,36 @@ public class DrawResourcesBar {
         }
     }
 
+    /**
+     * Get a rectangle by index cont since the left side
+     * @param indexLeft
+     * @return
+     */
     private Rect getRect(int indexLeft){
         Rect r = new Rect();
         r = new Rect(boxSizeX*indexLeft,0,(boxSizeX*indexLeft)+(boxSizeX*RECT_WITDH),initY);
         return r;
     }
 
+    /**
+     * Get a bitmap scaled by a box size height
+     * @param bitmap bitmap to be sacled
+     * @return bitmap sacled
+     */
     private Bitmap getBitmap(String bitmap){
         Bitmap b = getBitmapFromAssets(bitmap);
         return scaleByHeight(b,boxSizeY);
     }
 
-    public Bitmap getBitmapFromAssets(String fichero) {
+    /**
+     * Get a bitmap from a assets folder
+     * @param file file of the assets folder to convert on bitmap
+     * @return bitmap charge from file of the assets folder
+     */
+    public Bitmap getBitmapFromAssets(String file) {
         try
         {
-            InputStream is= context.getAssets().open(fichero);
+            InputStream is= context.getAssets().open(file);
             return BitmapFactory.decodeStream(is);
         }
         catch (IOException e) {
@@ -85,57 +102,63 @@ public class DrawResourcesBar {
         }
     }
 
+    /**
+     * Scale a bitmap by height
+     * @param res Bitmap to sacale
+     * @param newHeight new height of the bitmap
+     * @return bitmap sacaled
+     */
     public Bitmap scaleByHeight(Bitmap res, int newHeight) {
         if (newHeight==res.getHeight()) return res;
         return res.createScaledBitmap(res, (res.getWidth() * newHeight) /
                 res.getHeight(), newHeight, true);
     }
 
+    /**
+     * Get actual wood of the player
+     * @return actual wood of the player
+     */
     public int getActualWood() {
         return actualWood;
     }
 
+    /**
+     * Set actual wood of the player
+     * @param actualWood actual wood of the player
+     */
     public void setActualWood(int actualWood) {
         this.actualWood = actualWood;
     }
 
+    /**
+     * Get actual stone of the player
+     * @return actual stone of the player
+     */
     public int getActualStone() {
         return actualStone;
     }
 
+    /**
+     * Set actual stone of the player
+     * @param actualStone actual stone of the player
+     */
     public void setActualStone(int actualStone) {
         this.actualStone = actualStone;
     }
 
+    /**
+     * Get actual food of the player
+     * @return actual food of the player
+     */
     public int getActualFood() {
         return actualFood;
     }
 
+    /**
+     * Set actual food of the player
+     * @param actualFood actual food of the player
+     */
     public void setActualFood(int actualFood) {
         this.actualFood = actualFood;
-    }
-
-    public int getInitY() {
-        return initY;
-    }
-
-    public void setInitY(int initY) {
-        this.initY = initY;
-    }
-
-    public int getBoxSizeX() {
-        return boxSizeX;
-    }
-
-    public void setBoxSizeX(int boxSizeX) {
-        this.boxSizeX = boxSizeX;
-    }
-
-    public int getBoxSizeY() {
-        return boxSizeY;
-    }
-
-    public void setBoxSizeY(int boxSizeY) {
-        this.boxSizeY = boxSizeY;
     }
 }

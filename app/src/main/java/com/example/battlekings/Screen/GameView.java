@@ -6,7 +6,6 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.os.Build;
 import android.view.MotionEvent;
-import android.view.ScaleGestureDetector;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
@@ -22,6 +21,7 @@ import com.example.battlekings.DrawObjects.humans.HumanState;
 import com.example.battlekings.DrawObjects.humans.HumanType;
 import com.example.battlekings.GameManger.Escenario;
 import com.example.battlekings.MainActivity;
+import com.example.battlekings.MainLast;
 import com.example.battlekings.Utils.BitmapManager;
 import com.example.battlekings.Utils.GameTools;
 
@@ -111,13 +111,13 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
             e.printStackTrace();
         }
         mainActivity.setScrenOrientation(false);
-        mainActivity.setContentViewMain();
+        mainActivity.onCreate(null,null);
     }
 
     /**
      * Manage the Motions ACTION_DOWN,ACTION_MOVE,ACTION_UP.
      * On ACTION_MOVE moves the screen
-     *
+     * On ACTION_DOWN checked the actions of each box on screen.
      * @param event
      * @return
      */
@@ -456,7 +456,10 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
                     synchronized (surfaceHolder) {
                         drawGame(c);
                     }
-                } finally {
+
+                }catch (Exception e){
+                    e.printStackTrace();
+                }finally {
                     if (c != null) {
                         surfaceHolder.unlockCanvasAndPost(c);
                     }

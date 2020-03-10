@@ -13,28 +13,32 @@ public class BD extends SQLiteOpenHelper {
         super(context, nombre, factory, versión);
     }
 
+    /**
+     * Create the table game
+     * @param db SQLiteDatabase into device
+     */
     @Override
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(sqlCreateTable);
-//        db.execSQL(
-//                "INSERT INTO deportistas (id, nombre, activo, genero, deporte) VALUES"+
-//                        "(1, 'Alex Criville', 0, 'Masculino', 'Motociclismo'), "+
-//                        "(2, 'Alexander Popov', 0, 'Masculino', 'Natación'), "+
-//                        "(3, 'Alfredo Di Stefano', 0, 'Masculino', 'Futbol'), "+
-//                        "(4, 'Almudena Cid', 0, 'Femenino', 'Gimnasia Rítmica'), "+
-//                        "(5, 'Amaya Valdemoro', 0, 'Femenino', 'Baloncesto'), "+
-//                        "(6, 'Ana Ivanovic', 1, 'Femenino', 'Tenis'), "+
-//                        "(7, 'Anatoli Karpov', 0, 'Masculino', 'Ajedrez') ");
     }
 
+    /**
+     * Drop table game if exist and create another a a new version
+     * @param db Sqlite database
+     * @param oldVersion oldVersion
+     * @param newVersion newVersion
+     */
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        // Solución más simple. Borro la tabla y la creo con el nuevo formato.
-        // Es recomentable migrar previamente los datos
         db.execSQL("DROP TABLE IF EXISTS game ");
         db.execSQL(sqlCreateTable);
     }
 
+    /**
+     * Get all the data from the table and return they as a Playerdata
+     * @param db Sqlite database
+     * @return Data as PLayerData
+     */
     public PlayerData getTotalData(SQLiteDatabase db){
         String query="select* from game";
         Cursor c = db.rawQuery(query, null);
@@ -58,6 +62,11 @@ public class BD extends SQLiteOpenHelper {
         return data;
     }
 
+    /**
+     * Put into the table game all the player data
+     * @param db Sqlite database
+     * @param data Actual player
+     */
     public void putData(SQLiteDatabase db,PlayerData data){
         db.execSQL( "INSERT INTO game ( unitsCreated,unitsLoss,unitsDestroyed,resourcesCollected,buildsCreated,buildsDestroyed,buildsLoss) VALUES ("+data.getUnitsCreated()+","+data.getUnitsLoss()+", "+data.getUnitsDestroyed()+", "+data.getResourcesCollected()+", "+data.getBuildsCreated()+","+data.getBuildsDestroyed()+","+data.getBuildsLoss()+");");
     }
