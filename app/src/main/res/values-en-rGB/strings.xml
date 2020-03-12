@@ -29,4 +29,9 @@
     <string name="tutorial_move">How to move</string>
     <string name="tutorial_objetive">Game objetive</string>
     <string name="tutorial_objetive_description">Game consist.....</string>
+    <string name="game_no">No</string>
+    <string name="game_ok">OK</string>
+    <string name="game_exit">Do you wanto to exit?</string>
+    <string name="game_yes">Si</string>
+    <string name="game_end">Game over</string>
 </resources>

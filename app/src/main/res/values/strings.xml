@@ -45,4 +45,11 @@
     <string name="tutorial_action">Acción del personaje</string>
     <string name="tutorial_objetive">Objetivo del juego</string>
     <string name="tutorial_objetive_description">El juego consiste en</string>
+
+    <!-- On game menu-->
+    <string name="game_yes">Si</string>
+    <string name="game_no">No</string>
+    <string name="game_ok">OK</string>
+    <string name="game_exit">¿Desea salir del juego?</string>
+    <string name="game_end">Fin de la partida.</string>
 </resources>

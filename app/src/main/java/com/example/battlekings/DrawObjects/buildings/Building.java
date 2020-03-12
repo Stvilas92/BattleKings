@@ -33,7 +33,7 @@ public class Building implements GameObject {
     private static final int RECTS_NUMBER_TOWER = 2;
     private static final int RECTS_NUMBER_WALL = 2;
     private static final int RECTS_NUMBER_CATAPULT = 2;
-    private static final int INIT_LIFE = 1000;
+    private static final int INIT_LIFE = 200;
     private static final int SOLDIER_FOOD_COST = 50;
     private static final int CONSTRUCTOR_FOOD_COST = 100;
     private static final int VILLAGER_FOOD_COST = 30;

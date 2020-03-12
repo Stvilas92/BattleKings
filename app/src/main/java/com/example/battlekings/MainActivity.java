@@ -3,6 +3,7 @@ package com.example.battlekings;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -106,12 +107,20 @@ public class MainActivity extends AppCompatActivity {
         btnSound = soundEffects.load(getApplicationContext(),R.raw.click,1);
         inicializateComponentsMain();
         mediaPlayer.setLooping(true);
-        mediaPlayer.start();
-        volume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
+        if(options.isMusic()) {
+            mediaPlayer.start();
+        }
+        volume = 1;
 
         setFullScreen();
         if(flagInit){
-            initGame();
+            if(gameRunning && screnOrientation){
+                setScrenOrientation(true);
+                initGame();
+                return;
+            }else{
+                inicializateComponentsMain();
+            }
             flagInit = false;
         }
     }
@@ -130,6 +139,7 @@ public class MainActivity extends AppCompatActivity {
      */
     public void setContentViewMain(){
         changeLayout(LAYOUT_MAIN);
+        setContentView(actualLayout);
         inicializateComponentsMain();
     }
 
@@ -254,8 +264,14 @@ public class MainActivity extends AppCompatActivity {
 
         if(options.isMusic()){
             btnMusic.setText(R.string.menu_options_music_on);
+            if(!mediaPlayer.isPlaying()){
+                mediaPlayer.start();
+            }
         }else{
             btnMusic.setText(R.string.menu_options_music_off);
+            if(mediaPlayer.isPlaying()){
+                mediaPlayer.pause();
+            }
         }
 
         btnLanguage.setOnClickListener(new View.OnClickListener() {
@@ -295,8 +311,14 @@ public class MainActivity extends AppCompatActivity {
                 options.setMusic(!options.isMusic());
                 if(options.isMusic()){
                     btnMusic.setText(R.string.menu_options_music_on);
+                    if(!mediaPlayer.isPlaying()){
+                        mediaPlayer.start();
+                    }
                 }else{
                     btnMusic.setText(R.string.menu_options_music_off);
+                    if(mediaPlayer.isPlaying()){
+                        mediaPlayer.pause();
+                    }
                 }
 
                 if(options.isVibration()) {
@@ -364,10 +386,10 @@ public class MainActivity extends AppCompatActivity {
                 if(options.isVibration()) {
                     vibrate();
                 }
-
+                gameRunning = true;
+                flagInit = true;
                 setScrenOrientation(true);
 //                game = new GameView(getApplicationContext(),mainActivity);
-                flagInit = true;
 //                setContentView(game);
 //                game.setKeepScreenOn(true);
 
@@ -473,6 +495,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 dispatchTakePictureIntent();
+                setFullScreen();
             }
         });
 
@@ -481,6 +504,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 builder.show();
+                setFullScreen();
             }
         });
 
@@ -543,7 +567,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        volume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
+        volume = 1;
         preferences = getPreferences(getApplicationContext().MODE_PRIVATE);
         getOptionsFromPreferences(preferences);
         if(!mediaPlayer.isPlaying() && options.isMusic()) {
@@ -559,7 +583,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        volume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
+        volume =1;
         if(mediaPlayer.isPlaying()) {
             mediaPlayer.stop();
         }
@@ -568,6 +592,7 @@ public class MainActivity extends AppCompatActivity {
         preferences.edit().putString("language",options.getLanguage().toString()).apply();
         preferences.edit().putBoolean("initGame",flagInit).apply();
         preferences.edit().putBoolean("gameRunning",gameRunning).apply();
+        preferences.edit().putBoolean("screenOrientation",screnOrientation).apply();
     }
 
     /**
@@ -581,6 +606,7 @@ public class MainActivity extends AppCompatActivity {
         this.options.setLanguage(Language.valueOf(language));
         this.flagInit = preferences.getBoolean("initGame",false);
         this.gameRunning = preferences.getBoolean("gameRunning",false);
+        this.screnOrientation = preferences.getBoolean("screenOrientation",false);
     }
 
     /**
@@ -593,6 +619,7 @@ public class MainActivity extends AppCompatActivity {
         if(options.isMusic()) {
             soundEffects.play(btnSound, volume, volume, 1, 0, 1);
         }
+
         switch ( theMotion.getAction() ) {
             case MotionEvent.ACTION_UP:
                 switch (button.getId()){
@@ -730,6 +757,13 @@ public class MainActivity extends AppCompatActivity {
         game = new GameView(getApplicationContext(),mainActivity);
         setContentView(game);
         game.setKeepScreenOn(true);
-        gameRunning = true;
+    }
+
+    /**
+     * Set boolean gameRunning. Indicates if the game is running or no.
+     * @param gameRunning  boolean gameRunning
+     */
+    public void setGameRunning(boolean gameRunning){
+        this.gameRunning = gameRunning;
     }
 }

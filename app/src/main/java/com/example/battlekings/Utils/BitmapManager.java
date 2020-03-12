@@ -23,18 +23,25 @@ public class BitmapManager {
     private static final int SIZE_ACTION_VILLAGER = 7;
     private static final int SIZE_ACTION_CONSTRUCTOR = 8;
     private static final int SIZE_ACTION_SOLDIER = 12;
+    private static final int SIZE_WALKING_ENEMY = 8;
+    private static final int SIZE_ACTION_ENEMY = 13;
+    private static final int SIZE_DEAD_ENEMY = 11;
 
     private Bitmap bitmapSurface;
     private Bitmap natureRock,natureWood,natureFood;
     private Bitmap natureTypeRock,natureTypeWood,natureTypeFood;
     private Bitmap buildMain,buildTower;
-    private Bitmap bitmapSoldier,bitmapConstructor,bitmapVillager;
+    private Bitmap bitmapSoldier,bitmapConstructor,bitmapVillager,bitmapEnemy;
     private Bitmap bitmapExit,bitmapActionSword,bitmapActionHandWhite,bitmapActionHandYellow;
     private HashMap<HumanOrientation, Bitmap[]> soldierAction,soldierWalking,soldierDead;
-    private HashMap<HumanOrientation, Bitmap[]> villagerAction,villagerWalking,villagerDead;
-    private HashMap<HumanOrientation, Bitmap[]> constructorAction,constructorWalking,constructorDead;
+    private HashMap<HumanOrientation, Bitmap[]> enemyAction,enemyWalking,enemyDead;
+    private HashMap<HumanOrientation, Bitmap[]> villagerAction,villagerWalking;
+    private HashMap<HumanOrientation, Bitmap[]> constructorAction,constructorWalking;
     private int sizeBoxX,sizeBoxY;
     private Context context;
+    private Bitmap bitmapButtonBlue,bitmapButtonBluePressed;
+    private Bitmap bitmapButtonBrown, bitmapButtonBrownPressed;
+    private Bitmap bitmapPanel;
 
     public BitmapManager(int boxSizeX, int boxSizeY, Context context){
         this.context = context;
@@ -107,6 +114,7 @@ public class BitmapManager {
         getUnitsBitmaps(HumanType.VILLAGER);
         getUnitsBitmaps(HumanType.CONSTRUCTOR);
         getUnitsBitmaps(HumanType.SOLDIER);
+        getUnitsBitmaps(HumanType.ENEMY);
     }
 
     /**
@@ -205,6 +213,7 @@ public class BitmapManager {
     private void  getUnitMovementBitmap(HumanType humanType){
         String unitPath = "";
         String unitAction = "";
+        String unitExtension = "";
         int sizeWalking= 0,sizeAction = 0, sizeDead = 0;
         HashMap<HumanOrientation, Bitmap[]> humanWalking;
         HashMap<HumanOrientation, Bitmap[]> humanAction;
@@ -217,6 +226,7 @@ public class BitmapManager {
                 sizeWalking = SIZE_WALKING_VILLAGER;
                 sizeAction = SIZE_ACTION_VILLAGER;
                 sizeDead = SIZE_DEAD_VILLAGER;
+                unitExtension = "png";
                 break;
 
             case CONSTRUCTOR:
@@ -225,7 +235,9 @@ public class BitmapManager {
                 sizeWalking = SIZE_WALKING_CONSTRUCTOR;
                 sizeAction = SIZE_ACTION_CONSTRUCTOR;
                 sizeDead = SIZE_DEAD_CONSTRUCTOR;
+                unitExtension = "png";
                 break;
+
 
             case SOLDIER:
                 unitPath = "Soldier";
@@ -233,6 +245,16 @@ public class BitmapManager {
                 sizeWalking = SIZE_WALKING_SOLDIER;
                 sizeAction = SIZE_ACTION_SOLDIER;
                 sizeDead = SIZE_DEAD_SOLDIER;
+                unitExtension = "png";
+                break;
+
+            case ENEMY:
+                unitPath = "Enemy";
+                unitAction = "attack";
+                sizeWalking = SIZE_WALKING_ENEMY;
+                sizeAction = SIZE_ACTION_ENEMY;
+                sizeDead = SIZE_DEAD_ENEMY;
+                unitExtension = "bmp";
                 break;
         }
 
@@ -244,9 +266,9 @@ public class BitmapManager {
             Bitmap[] bitmapAux = new Bitmap[sizeWalking];
             for (int j = 0; j < sizeWalking; j++) {
                 if(j > 9){
-                    bitmapAux[j] = BitmapManager.getBitmapFromAssets("Units/" + unitPath + "/Walking/walking " + HumanOrientation.values()[i].toString().substring(0, 1).toLowerCase() + "00" + j + ".png", context);
+                    bitmapAux[j] = BitmapManager.getBitmapFromAssets("Units/" + unitPath + "/Walking/walking " + HumanOrientation.values()[i].toString().substring(0, 1).toLowerCase() + "00" + j + "."+unitExtension, context);
                 }else {
-                    bitmapAux[j] = BitmapManager.getBitmapFromAssets("Units/" + unitPath + "/Walking/walking " + HumanOrientation.values()[i].toString().substring(0, 1).toLowerCase() + "000" + j + ".png", context);
+                    bitmapAux[j] = BitmapManager.getBitmapFromAssets("Units/" + unitPath + "/Walking/walking " + HumanOrientation.values()[i].toString().substring(0, 1).toLowerCase() + "000" + j + "."+unitExtension, context);
                 }
                 bitmapAux[j] = BitmapManager.scaleByHeight(bitmapAux[j], sizeBoxY);
             }
@@ -257,23 +279,23 @@ public class BitmapManager {
             Bitmap[] bitmapAux = new Bitmap[sizeAction];
             for (int j = 0; j < sizeAction; j++) {
                 if(j > 9){
-                    bitmapAux[j] = BitmapManager.getBitmapFromAssets("Units/"+unitPath+"/Action/"+unitAction+" "+HumanOrientation.values()[i].toString().substring(0,1).toLowerCase()+"00"+j+".png",context);
+                    bitmapAux[j] = BitmapManager.getBitmapFromAssets("Units/"+unitPath+"/Action/"+unitAction+" "+HumanOrientation.values()[i].toString().substring(0,1).toLowerCase()+"00"+j+"."+unitExtension,context);
                 }else {
-                    bitmapAux[j] = BitmapManager.getBitmapFromAssets("Units/"+unitPath+"/Action/"+unitAction+" "+HumanOrientation.values()[i].toString().substring(0,1).toLowerCase()+"000"+j+".png",context);
+                    bitmapAux[j] = BitmapManager.getBitmapFromAssets("Units/"+unitPath+"/Action/"+unitAction+" "+HumanOrientation.values()[i].toString().substring(0,1).toLowerCase()+"000"+j+"."+unitExtension,context);
                 }
                 bitmapAux[j] = BitmapManager.scaleByHeight(bitmapAux[j], sizeBoxY);
             }
             humanAction.put(HumanOrientation.values()[i],bitmapAux);
         }
 
-        if ( humanType == HumanType.SOLDIER) {
+        if ( humanType == HumanType.SOLDIER || humanType == HumanType.ENEMY) {
             for (int i = 0; i < HumanOrientation.values().length; i++) {
                 Bitmap[] bitmapAux = new Bitmap[sizeDead];
                 for (int j = 0; j < sizeDead; j++) {
                     if(j > 9){
-                        bitmapAux[j] = BitmapManager.getBitmapFromAssets("Units/" + unitPath + "/Dead/tipping over " + HumanOrientation.values()[i].toString().substring(0, 1).toLowerCase() + "00" + j + ".png", context);
+                        bitmapAux[j] = BitmapManager.getBitmapFromAssets("Units/" + unitPath + "/Dead/tipping over " + HumanOrientation.values()[i].toString().substring(0, 1).toLowerCase() + "00" + j + "."+unitExtension, context);
                     }else {
-                        bitmapAux[j] = BitmapManager.getBitmapFromAssets("Units/" + unitPath + "/Dead/tipping over " + HumanOrientation.values()[i].toString().substring(0, 1).toLowerCase() + "000" + j + ".png", context);
+                        bitmapAux[j] = BitmapManager.getBitmapFromAssets("Units/" + unitPath + "/Dead/tipping over " + HumanOrientation.values()[i].toString().substring(0, 1).toLowerCase() + "000" + j + "."+unitExtension, context);
                     }bitmapAux[j] = BitmapManager.scaleByHeight(bitmapAux[j], sizeBoxY);
                 }
                 humanDead.put(HumanOrientation.values()[i], bitmapAux);
@@ -295,6 +317,12 @@ public class BitmapManager {
                 soldierAction = humanAction;
                 soldierWalking = humanWalking;
                 soldierDead = humanDead;
+                break;
+
+            case ENEMY:
+                enemyAction = humanAction;
+                enemyWalking = humanWalking;
+                enemyDead = humanDead;
                 break;
         }
     }
@@ -465,5 +493,85 @@ public class BitmapManager {
      */
     public Bitmap getBitmapActionHandYellow() {
         return bitmapActionHandYellow;
+    }
+
+    /**
+     * Get the bitmap exit
+     * @return bitmap exit
+     */
+    public Bitmap getBitmapExit() {
+        return bitmapExit;
+    }
+
+    /**
+     * Charge the bitmaps to draw the exit menu of the game
+     */
+    public void chargePanelsBitmpap(int sizeButtonsX,int sizeButtonsY,int sizePanelX,int sizePanelY){
+        this.bitmapButtonBlue = getBitmapFromAssets("ExitMenu/buttonLong_blue.png",context);
+        this.bitmapButtonBlue = scaleByHeight(this.bitmapButtonBlue,sizeButtonsY);
+        this.bitmapButtonBluePressed = getBitmapFromAssets("ExitMenu/buttonLong_blue_pressed.png",context);
+        this.bitmapButtonBluePressed = scaleByHeight(this.bitmapButtonBluePressed,sizeButtonsY);
+        this.bitmapButtonBrown = getBitmapFromAssets("ExitMenu/buttonLong_brown.png",context);
+        this.bitmapButtonBrown = scaleByHeight(this.bitmapButtonBrown,sizeButtonsY);
+        this.bitmapButtonBrownPressed = getBitmapFromAssets("ExitMenu/buttonLong_brown_pressed.png",context);
+        this.bitmapButtonBrownPressed = scaleByHeight(this.bitmapButtonBrownPressed,sizeButtonsY);
+        this.bitmapPanel = getBitmapFromAssets("ExitMenu/panelInset_beige.png",context);
+        this.bitmapPanel = scale(this.bitmapPanel,sizePanelX,sizePanelY);
+    }
+
+    /**
+     * Get the button blue bitmap
+     * @return button blue bitmap
+     */
+    public Bitmap getBitmapButtonBlue() {
+        return bitmapButtonBlue;
+    }
+
+    /**
+     * Get the button blue pressed bitmap
+     * @return button blue pressed bitmap
+     */
+    public Bitmap getBitmapButtonBluePressed() {
+        return bitmapButtonBluePressed;
+    }
+
+    /**
+     * Get the button brown bitmap
+     * @return button brown bitmap
+     */
+    public Bitmap getBitmapButtonBrown() {
+        return bitmapButtonBrown;
+    }
+
+    /**
+     * Get the button brown pressed bitmap
+     * @return button brown pressed bitmap
+     */
+    public Bitmap getBitmapButtonBrownPressed() {
+        return bitmapButtonBrownPressed;
+    }
+
+    /**
+     *  Get the exit panel bitmap
+     * @return exit panel bitmap
+     */
+    public Bitmap getBitmapPanel() {
+        return bitmapPanel;
+    }
+
+    public Bitmap getBitmapEnemy() {
+        return bitmapEnemy;
+    }
+
+    public HashMap<HumanOrientation, Bitmap[]> getEnemyAction() {
+        return enemyAction;
+    }
+
+    public HashMap<HumanOrientation, Bitmap[]> getEnemyWalking() {
+        return enemyWalking;
+    }
+
+    public HashMap<HumanOrientation, Bitmap[]> getEnemyDead() {
+        return enemyDead;
     }
 }

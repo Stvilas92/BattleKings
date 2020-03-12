@@ -12,7 +12,7 @@ public class GameTools {
      * @return box witch contains indexX and indexY
      */
     public static int getBoxByIndex(Box[] boxes,int indexX, int indexY){
-        for (int i = indexX*indexY; i < boxes.length; i++) {
+        for (int i = 0; i < boxes.length; i++) {
             if(boxes[i].getIndexX() == indexX && boxes[i].getIndexY() == indexY){
                 return i;
             }
