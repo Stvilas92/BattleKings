@@ -65,6 +65,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
     private MainActivity mainActivity;
     private Rect rectExit, rectPanel, rectOk, rectCancel;
     private Paint pPanelExit;
+    private boolean isEnemyDrawed = false;
 
     public GameView(Context context, MainActivity mainActivity) {
         super(context);
@@ -362,8 +363,9 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         for (int i = 0; i < boxScreenManager.getBoxesToDraw().length; i++) {
             if (boxesToDraw[i].getGameObject() != null) {
                 if (boxesToDraw[i].getGameObject().getClass().equals(Human.class)) {
-                    if (((Human) boxesToDraw[i].getGameObject()).getHumanType() != HumanType.ENEMY) {
-                        boxesToDraw[i].drawBox(c);
+                    boxesToDraw[i].drawBox(c);
+                    if (((Human) boxesToDraw[i].getGameObject()).getHumanType() == HumanType.ENEMY) {
+                        isEnemyDrawed = true;
                     }
                 } else {
                     boxesToDraw[i].drawBox(c);
@@ -378,19 +380,22 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
             }
 //            pruebas
-            Paint p = new Paint();
-            p.setStrokeWidth(5);
-
-            p.setColor(Color.RED);
-            p.setStyle(Paint.Style.STROKE);
-            c.drawRect(boxesToDraw[i].getX(), boxesToDraw[i].getY(), boxesToDraw[i].getFinalX(), boxesToDraw[i].getFinalY(),p);
-
-            p.setColor(Color.YELLOW);
-            p.setTextSize(boxesToDraw[i].getSizeY()/2);
-            c.drawText(boxesToDraw[i].xReference+":"+boxesToDraw[i].yReference,
-                    boxesToDraw[i].getX(),boxesToDraw[i].getY()+boxesToDraw[i].getSizeY(),p);
+//            Paint p = new Paint();
+//            p.setStrokeWidth(5);
+//
+//            p.setColor(Color.RED);
+//            p.setStyle(Paint.Style.STROKE);
+//            c.drawRect(boxesToDraw[i].getX(), boxesToDraw[i].getY(), boxesToDraw[i].getFinalX(), boxesToDraw[i].getFinalY(),p);
+//
+//            p.setColor(Color.YELLOW);
+//            p.setTextSize(boxesToDraw[i].getSizeY()/2);
+//            c.drawText(boxesToDraw[i].xReference+":"+boxesToDraw[i].yReference,
+//                    boxesToDraw[i].getX(),boxesToDraw[i].getY()+boxesToDraw[i].getSizeY(),p);
         }
-        movesEnemys(c);
+
+        if(!isEnemyDrawed) {
+            movesEnemys(c);
+        }
 
         if (indexBar > 0 && boxesToDraw[indexBar].getGameObject().isSelected()) {
             drawActionsBar.draw(c);
@@ -398,15 +403,18 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         }
         boxesToDraw = boxScreenManager.updateBoxesTodraw(boxInit);
 
-        if (enemiesTotal == 0) {
-            createEnemy();
-            enemiesTotal++;
-        } else if ((System.currentTimeMillis() - timeMilInit) / enemiesSecondsDivider >= 1 && enemiesSecondsDivider > DIVIDER_MIN_SECONDS) {
-            timeMilInit = System.currentTimeMillis();
-            createEnemy();
-            enemiesTotal++;
-            enemiesSecondsDivider = enemiesSecondsDivider / 2;
+        if(enemiesTotal <8) {
+            if (enemiesTotal == 0) {
+                createEnemy();
+                enemiesTotal++;
+            } else if ((System.currentTimeMillis() - timeMilInit) / enemiesSecondsDivider >= 1 && enemiesSecondsDivider > DIVIDER_MIN_SECONDS) {
+                timeMilInit = System.currentTimeMillis();
+                createEnemy();
+                enemiesTotal++;
+                enemiesSecondsDivider = enemiesSecondsDivider / 2;
+            }
         }
+        isEnemyDrawed = false;
     }
 
     /**
@@ -416,7 +424,8 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         boxes[0].setDrawObjectTypeAndSubtype(DrawObjectType.HUMAN, DrawObjectSubtype.ENEMY,
                 new Human(boxes, 0, 0, context, HumanType.ENEMY, drawActionsBar, HumanOrientation.SOUTH, drawResourcesBar, bitmapManager));
         ((Human) boxes[0].getGameObject()).setHumanState(HumanState.ONACTION);
-        ((Human) boxes[0].getGameObject()).setBoxDestiny(getMainBuildingIndex());
+        ((Human) boxes[0].getGameObject()).setObjectObjetive(boxes[getMainBuildingIndex()].getGameObject());
+        setEnemyDestiny((Human) boxes[0].getGameObject());
     }
 
     /**
@@ -428,8 +437,19 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         if (!flagExit) {
             for (int i = 0; i < boxes.length; i++) {
                 if (boxes[i].getGameObject() != null && boxes[i].getGameObject().getClass() == Human.class && ((Human) boxes[i].getGameObject()).getHumanType() == HumanType.ENEMY) {
-//                    boxes[i].drawBox(c);
+                    setEnemyDestiny((Human) boxes[i].getGameObject());
+                    boxes[i].drawBox(c);
                 }
+            }
+        }
+    }
+
+    private void setEnemyDestiny(Human enemy){
+        int[] boxesLimit = Escenario.getBoxesMainBuild();
+        for (int i = 0; i < boxesLimit.length; i++) {
+            if(boxes[boxesLimit[i]].getGameObject() == null){
+                enemy.setBoxDestiny(boxesLimit[i]);
+                return;
             }
         }
     }
@@ -627,5 +647,6 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         void setRunning(boolean flag) {
             runnig = flag;
         }
+
     }
 }

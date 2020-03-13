@@ -104,14 +104,6 @@ public class Nature implements GameObject {
         return OnTouchBarObjectResult.NONE;
     }
 
-    /**
-     * Get the object id
-     * @return object id
-     */
-    @Override
-    public int getObjectID() {
-        return this.id;
-    }
 
     /**
      * Get the object bitmap
@@ -292,5 +284,15 @@ public class Nature implements GameObject {
      */
     public NatureType getNatureType() {
         return natureType;
+    }
+
+    /**
+     * Get the actual box of the human.
+     *
+     * @return actual box of the human.
+     */
+    @Override
+    public int getActualBox() {
+        return actualBox;
     }
 }

@@ -34,4 +34,20 @@
     <string name="game_exit">Do you wanto to exit?</string>
     <string name="game_yes">Si</string>
     <string name="game_end">Game over</string>
+    <string name="menu_change_name">Insert new name</string>
+
+    <array name="list_credits">
+        <item>Developer : Aelajandro Vilas</item>
+        <item>Draws : Alejandro Vilas</item>
+        <item>Draws : Andrea Pérez</item>
+        <item>Draws : kenney.nl</item>
+        <item>Draws : Freepik</item>
+        <item>Text font : 1001Fonts.net</item>
+        <item>Buttons : kenney.nl</item>
+        <item>Sound : https://freesound.org/s/220209/</item>
+        <item>Music : Short But Strong! by Savfk | https://www.youtube.com/savfkmusic
+            Music promoted by https://www.free-stock-music.com
+            Attribution 4.0 International (CC BY 4.0)
+            https://creativecommons.org/licenses/by/4.0/</item>
+    </array>
 </resources>

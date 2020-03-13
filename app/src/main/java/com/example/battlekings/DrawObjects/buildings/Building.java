@@ -17,6 +17,7 @@ import com.example.battlekings.DrawObjects.gameBars.DrawResourcesBar;
 import com.example.battlekings.DrawObjects.humans.Human;
 import com.example.battlekings.DrawObjects.humans.HumanOrientation;
 import com.example.battlekings.DrawObjects.humans.HumanType;
+import com.example.battlekings.GameManger.Escenario;
 import com.example.battlekings.Screen.Box;
 import com.example.battlekings.Utils.BitmapManager;
 import com.example.battlekings.Utils.GameTools;
@@ -128,15 +129,6 @@ public class Building implements GameObject {
 //            case CATAPULT:
 //                break;
         }
-    }
-
-    /**
-     * Get the object id
-     * @return object id
-     */
-    @Override
-    public int getObjectID() {
-        return this.id;
     }
 
     /**
@@ -330,24 +322,33 @@ public class Building implements GameObject {
             case DEFENDING:
                 break;
             case CREATING_SOLDIER:
-                if(drawResourcesBar.getActualFood() >= SOLDIER_FOOD_COST) {
-                    Human soldier = new Human(boxes, 1, initBox - 1, context, HumanType.SOLDIER, drawActionsBar, HumanOrientation.SOUTH, drawResourcesBar,bitmapManager);
-                    this.setBuildingState(BuildingState.STOPPED);
-                    drawResourcesBar.setActualFood(drawResourcesBar.getActualFood()-SOLDIER_FOOD_COST);
+                int boxCreated = getEmptyBox();
+                if(boxCreated != -1){
+                    if(drawResourcesBar.getActualFood() >= SOLDIER_FOOD_COST) {
+                        Human soldier = new Human(boxes, 1, boxCreated, context, HumanType.SOLDIER, drawActionsBar, HumanOrientation.SOUTH, drawResourcesBar, bitmapManager);
+                        this.setBuildingState(BuildingState.STOPPED);
+                        drawResourcesBar.setActualFood(drawResourcesBar.getActualFood() - SOLDIER_FOOD_COST);
+                    }
                 }
                 break;
             case CREATING_VILLAGER:
-                if(drawResourcesBar.getActualFood() >= VILLAGER_FOOD_COST) {
-                    Human villager = new Human(boxes, 1, initBox - 1, context, HumanType.VILLAGER, drawActionsBar, HumanOrientation.SOUTH, drawResourcesBar,bitmapManager);
-                    this.setBuildingState(BuildingState.STOPPED);
-                    drawResourcesBar.setActualFood(drawResourcesBar.getActualFood()-VILLAGER_FOOD_COST);
+                boxCreated = getEmptyBox();
+                if(boxCreated != -1) {
+                    if (drawResourcesBar.getActualFood() >= VILLAGER_FOOD_COST) {
+                        Human villager = new Human(boxes, 1, boxCreated, context, HumanType.VILLAGER, drawActionsBar, HumanOrientation.SOUTH, drawResourcesBar, bitmapManager);
+                        this.setBuildingState(BuildingState.STOPPED);
+                        drawResourcesBar.setActualFood(drawResourcesBar.getActualFood() - VILLAGER_FOOD_COST);
+                    }
                 }
                 break;
             case CREATING_CONSTRUCOR:
-                if(drawResourcesBar.getActualFood() >= CONSTRUCTOR_FOOD_COST) {
-                    Human constructor = new Human(boxes, 1, initBox - 1, context, HumanType.CONSTRUCTOR, drawActionsBar, HumanOrientation.SOUTH, drawResourcesBar,bitmapManager);
-                    this.setBuildingState(BuildingState.STOPPED);
-                    drawResourcesBar.setActualFood(drawResourcesBar.getActualFood()-CONSTRUCTOR_FOOD_COST);
+                boxCreated = getEmptyBox();
+                if(boxCreated != -1) {
+                    if (drawResourcesBar.getActualFood() >= CONSTRUCTOR_FOOD_COST) {
+                        Human constructor = new Human(boxes, 1, boxCreated, context, HumanType.CONSTRUCTOR, drawActionsBar, HumanOrientation.SOUTH, drawResourcesBar, bitmapManager);
+                        this.setBuildingState(BuildingState.STOPPED);
+                        drawResourcesBar.setActualFood(drawResourcesBar.getActualFood() - CONSTRUCTOR_FOOD_COST);
+                    }
                 }
                 break;
         }
@@ -433,5 +434,25 @@ public class Building implements GameObject {
      */
     public void setBuildingType(BuildingType buildingType) {
         this.buildingType = buildingType;
+    }
+
+    private int getEmptyBox(){
+        int[] boxesLimit = Escenario.getBoxesMainBuild();
+        for (int i = 0; i < boxesLimit.length; i++) {
+            if(boxes[boxesLimit[i]].getGameObject() == null){
+                return boxesLimit[i];
+            }
+        }
+        return -1;
+    }
+
+    /**
+     * Get the actual box of the human.
+     *
+     * @return actual box of the human.
+     */
+    @Override
+    public int getActualBox() {
+        return initBox;
     }
 }

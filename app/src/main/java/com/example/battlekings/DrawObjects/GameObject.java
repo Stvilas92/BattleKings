@@ -5,7 +5,6 @@ import android.graphics.Canvas;
 
 public interface GameObject {
     public void drawObject(Canvas c, int x, int y);
-    public int getObjectID();
     public Bitmap getBitmap();
     public boolean isSelected();
     public int getSizeX();
@@ -17,4 +16,5 @@ public interface GameObject {
     public boolean isSelectingMode();
     public void setSelectingMode(boolean selectingMode);
     public void onTouchObject(boolean selectingMode, int x, int y, int boxSelected);
+    public int getActualBox();
 }
