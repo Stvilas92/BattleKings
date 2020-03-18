@@ -11,41 +11,66 @@ import com.example.battlekings.DrawObjects.nature.NatureType;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.HashMap;
 
 public class BitmapManager {
+    /** Size of array of bitmaps to represent a villager walking*/
     private static final int SIZE_WALKING_VILLAGER = 8;
+    /** Size of array of bitmaps to represent a constructor walking*/
     private static final int SIZE_WALKING_CONSTRUCTOR = 8;
+    /** Size of array of bitmaps to represent a soldier walking*/
     private static final int SIZE_WALKING_SOLDIER = 12;
+    /** Size of array of bitmaps to represent a villager dead*/
     private static final int SIZE_DEAD_VILLAGER = 4;
+    /** Size of array of bitmaps to represent a constructor dead*/
     private static final int SIZE_DEAD_CONSTRUCTOR = 4;
+    /** Size of array of bitmaps to represent a soldier dead*/
     private static final int SIZE_DEAD_SOLDIER = 13;
+    /** Size of array of bitmaps to represent a villager action*/
     private static final int SIZE_ACTION_VILLAGER = 7;
+    /** Size of array of bitmaps to represent a constructor action*/
     private static final int SIZE_ACTION_CONSTRUCTOR = 8;
+    /** Size of array of bitmaps to represent a soldier action*/
     private static final int SIZE_ACTION_SOLDIER = 12;
+    /** Size of array of bitmaps to represent a enemy walking*/
     private static final int SIZE_WALKING_ENEMY = 8;
+    /** Size of array of bitmaps to represent a enemy action*/
     private static final int SIZE_ACTION_ENEMY = 13;
+    /** Size of array of bitmaps to represent a enemy dead*/
     private static final int SIZE_DEAD_ENEMY = 11;
 
-    private Bitmap bitmapSurface;
+    /** Bitmaps of the nature objects*/
     private Bitmap natureRock,natureWood,natureFood;
+    /** Bitmaps of the nature types draws*/
     private Bitmap natureTypeRock,natureTypeWood,natureTypeFood;
+    /** Bitmaps of the build objects*/
     private Bitmap buildMain,buildTower;
+    /** Bitmaps of the human objects*/
     private Bitmap bitmapSoldier,bitmapConstructor,bitmapVillager,bitmapEnemy;
-    private Bitmap bitmapExit,bitmapActionSword,bitmapActionHandWhite,bitmapActionHandYellow;
+    /** Bitmaps of the draw action bars buttons*/
+    private Bitmap bitmapExit,bitmapActionSword,bitmapActionSwordBrown,bitmapActionHandWhite, bitmapActionHandBrown;
+    /** Bitmaps of the soldier action,walking or dead*/
     private HashMap<HumanOrientation, Bitmap[]> soldierAction,soldierWalking,soldierDead;
+    /** Bitmaps of the enemy action,walking or dead*/
     private HashMap<HumanOrientation, Bitmap[]> enemyAction,enemyWalking,enemyDead;
+    /** Bitmaps of the villager action,walking or dead*/
     private HashMap<HumanOrientation, Bitmap[]> villagerAction,villagerWalking;
+    /** Bitmaps of the constructor action,walking or dead*/
     private HashMap<HumanOrientation, Bitmap[]> constructorAction,constructorWalking;
-    private int sizeBoxX,sizeBoxY;
+    /** Height of a screen box, used to scale the bitmaps */
+    private int sizeBoxY;
+    /** Application context*/
     private Context context;
+    /** Bitmaps of ok buttons of the game exit dialog*/
     private Bitmap bitmapButtonBlue,bitmapButtonBluePressed;
+    /** Bitmaps of cancel buttons of the game exit dialog*/
     private Bitmap bitmapButtonBrown, bitmapButtonBrownPressed;
+    /** Bitmaps of panel of the game exit dialog*/
     private Bitmap bitmapPanel;
 
     public BitmapManager(int boxSizeX, int boxSizeY, Context context){
         this.context = context;
-        this.sizeBoxX = boxSizeX;
         this.sizeBoxY = boxSizeY;
         getAllBitmapts();
     }
@@ -190,8 +215,8 @@ public class BitmapManager {
                 break;
 
             case ENEMY:
-                this.bitmapSoldier = BitmapManager.getBitmapFromAssets("Units/Soldier/Walking/stopped0000.png",context);
-                this.bitmapSoldier = BitmapManager.scaleByHeight(this.bitmapSoldier, sizeBoxY);
+                this.bitmapEnemy = BitmapManager.getBitmapFromAssets("Units/Enemy/Walking/stopped0000.png",context);
+                this.bitmapEnemy = BitmapManager.scaleByHeight(this.bitmapSoldier, sizeBoxY);
                 getUnitMovementBitmap(humanType);
                 break;
         }
@@ -199,10 +224,12 @@ public class BitmapManager {
         this.bitmapExit = BitmapManager.scaleByHeight(this.bitmapExit, sizeBoxY);
         this.bitmapActionSword = BitmapManager.getBitmapFromAssets("BarIcons/sword.png",context);
         this.bitmapActionSword = BitmapManager.scaleByHeight(this.bitmapActionSword, sizeBoxY);
+        this.bitmapActionSwordBrown = BitmapManager.getBitmapFromAssets("BarIcons/sword_brown.png",context);
+        this.bitmapActionSwordBrown = BitmapManager.scaleByHeight(this.bitmapActionSword, sizeBoxY);
         this.bitmapActionHandWhite = BitmapManager.getBitmapFromAssets("BarIcons/hand.png",context);
         this.bitmapActionHandWhite = BitmapManager.scaleByHeight(this.bitmapActionHandWhite, sizeBoxY);
-        this.bitmapActionHandYellow = BitmapManager.getBitmapFromAssets("BarIcons/hand.png",context);
-        this.bitmapActionHandYellow = BitmapManager.scaleByHeight(this.bitmapActionHandYellow, sizeBoxY);
+        this.bitmapActionHandBrown = BitmapManager.getBitmapFromAssets("BarIcons/hand_brown.png",context);
+        this.bitmapActionHandBrown = BitmapManager.scaleByHeight(this.bitmapActionHandBrown, sizeBoxY);
     }
 
     /**
@@ -488,11 +515,11 @@ public class BitmapManager {
     }
 
     /**
-     * Get the bitmapActionHandYellow
-     * @return bitmapActionHandYellow
+     * Get the bitmapActionHandBrown
+     * @return bitmapActionHandBrown
      */
-    public Bitmap getBitmapActionHandYellow() {
-        return bitmapActionHandYellow;
+    public Bitmap getBitmapActionHandBrown() {
+        return bitmapActionHandBrown;
     }
 
     /**
@@ -573,5 +600,9 @@ public class BitmapManager {
 
     public HashMap<HumanOrientation, Bitmap[]> getEnemyDead() {
         return enemyDead;
+    }
+
+    public Bitmap getBitmapActionSwordBrown() {
+        return bitmapActionSwordBrown;
     }
 }

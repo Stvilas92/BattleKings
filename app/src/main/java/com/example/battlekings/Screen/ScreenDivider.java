@@ -6,11 +6,19 @@ import android.graphics.Bitmap;
 import com.example.battlekings.Utils.BitmapManager;
 
 /**
- * Class wittch represent a division of the screen on boxes
- * with a specified size x and y
+ * Class witch is used to divide all the surface to draw on boxes
+ * with a specified size x (surface width) and y (surface height).
  */
 public class ScreenDivider {
+    /**
+     * w width of the screen
+     * h height of the screen
+     * boxSizeX width of a box
+     * boxSizeY height of a box
+     */
     private int w,h,boxSizeX,boxSizeY;
+
+    /** Array of boxes that will contains all the objects that will be draw*/
     private Box[] boxes;
 
     public ScreenDivider(int initX, int finalX, int initY, int finalY, int div, Context context ) {

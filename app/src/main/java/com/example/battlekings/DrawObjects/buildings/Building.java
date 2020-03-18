@@ -2,12 +2,11 @@ package com.example.battlekings.DrawObjects.buildings;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
-
+import android.graphics.Typeface;
 import com.example.battlekings.DrawObjects.DrawObjectSubtype;
 import com.example.battlekings.DrawObjects.DrawObjectType;
 import com.example.battlekings.DrawObjects.GameObject;
@@ -18,54 +17,99 @@ import com.example.battlekings.DrawObjects.humans.Human;
 import com.example.battlekings.DrawObjects.humans.HumanOrientation;
 import com.example.battlekings.DrawObjects.humans.HumanType;
 import com.example.battlekings.GameManger.Escenario;
+import com.example.battlekings.R;
 import com.example.battlekings.Screen.Box;
 import com.example.battlekings.Utils.BitmapManager;
 import com.example.battlekings.Utils.GameTools;
 
-import java.io.IOException;
-import java.io.InputStream;
+import androidx.core.content.res.ResourcesCompat;
 
 public class Building implements GameObject {
+    /** Rect height of draw action bar buttons*/
     private static final double RECT_HEIGTH = 1.5;
+    /** Rect width of draw action bar buttons*/
     private static final double RECT_WIDTH = 1.5;
-    private static final int INIT_X = 2;
+    /** Init point x to draw action bar buttons*/
+    private static final int INIT_X = 1;
+    /** Distance between the buttons of the action bar*/
     private static final int SEPARATE = 2;
+    /** Rects number of the action bar*/
     private static final int RECTS_NUMBER_BUILDING = 5;
-    private static final int RECTS_NUMBER_TOWER = 2;
-    private static final int RECTS_NUMBER_WALL = 2;
-    private static final int RECTS_NUMBER_CATAPULT = 2;
+    /** Init life of the main building */
     private static final int INIT_LIFE = 200;
+    /** Soldier food cost */
     private static final int SOLDIER_FOOD_COST = 50;
+    /** Constructor food cost */
     private static final int CONSTRUCTOR_FOOD_COST = 100;
+    /** Villager food cost */
     private static final int VILLAGER_FOOD_COST = 30;
 
+    /**
+     * sizeX size of the box witch contains a building
+     * sizeRectX size of the rect of drawActionBar
+     */
     private int sizeX = -1,sizeRectX;
+    /**
+     * sizeY size of the box witch contains a building
+     * sizeRectY size of the rect of drawActionBar
+     */
     private int sizeY = -1,sizeRectY;
+    /** Boxes witch the building occupies */
     private int[] boxesOcuped;
+    /** Total boxes */
     private Box[] boxes;
-    private int id,initBox,rectHeigth;
-    private Bitmap buildBitmap,bitmapVillager,bitmapConstructor,bitmapSoldier;
+    /**
+     * initBox Actual box occupied by the building
+     * rectHeight Rect height of the drawActionBar
+     */
+    private int initBox,rectHeigth;
+    /**
+     * buildBitmap bitmap of the building
+     * bitmapVillager bitmap of a villager draw on the DrawActionsBar
+     * bitmapConstructor bitmap of a constructor draw on the DrawActionsBar
+     * bitmapSoldier bitmap of a soldier draw on the DrawActionsBar
+     * bitmapExit to exit of the object, draw on the DrawActionsBar
+     */
+    private Bitmap buildBitmap,bitmapVillager,bitmapConstructor,bitmapSoldier,bitmapExit;
+    /** Application context*/
     private Context context;
+
     private BuildingState state = BuildingState.STOPPED;
+    /** Indicate if the building is selected */
     private boolean selected = false;
+    /** DrawActionsBar of the building */
     private DrawActionsBar drawActionsBar;
+    /**
+     * p paint to draw on the box
+     * pText paint to draw on the DrawActionsBar
+     */
     private Paint p,pText;
+    /** Canvas to draw */
     private Canvas c;
 
     //Game variables
+    /** Actual build type*/
     private BuildingType buildingType;
+    /** Rects of the action bar*/
     private Rect[] rectActions;
+    /** Human build life*/
     private int actualLife = INIT_LIFE;
+    /** Actual build state*/
+    private int initLife = INIT_LIFE;
+    /** Actual building state*/
     private BuildingState buildingState = BuildingState.STOPPED;
+    /** Actions of each rect of the action bar*/
     private Runnable[] actions;
+    /** DrawActionsBar of the player */
     private DrawResourcesBar drawResourcesBar;
+    /** Indicates if the user is selecting a new objectObjetive to do an action*/
     private boolean selectingMode = false;
+    /** Bitmap Manager of the game*/
     private BitmapManager bitmapManager;
 
     public Building(Box[] boxes, int id, int initBox, Context context, BuildingType buildingType, DrawActionsBar drawActionsBar, DrawResourcesBar drawResourcesBar, BitmapManager bitmapManager) {
         this.bitmapManager = bitmapManager;
         this.boxes = boxes;
-        this.id = id;
         this.initBox = initBox;
         this.context = context;
         this.buildingType = buildingType;
@@ -74,7 +118,8 @@ public class Building implements GameObject {
         this.drawActionsBar = drawActionsBar;
         this.sizeRectY = (int)(boxes[0].getSizeY()*RECT_HEIGTH);
         this.sizeRectX = (int)(boxes[0].getSizeX()*RECT_WIDTH);
-        rectHeigth = drawActionsBar.getInitY()+(((drawActionsBar.getScreenHeight()- drawActionsBar.getInitY()) - this.sizeRectY)/2);
+//        rectHeigth = drawActionsBar.getInitY()+(((drawActionsBar.getScreenHeight()- drawActionsBar.getInitY()) - this.sizeRectY)/2);
+        rectHeigth =  drawActionsBar.getInitY();
         makeRectActions();
         this.p = new Paint();
         p.setColor(Color.TRANSPARENT);
@@ -84,6 +129,8 @@ public class Building implements GameObject {
         pText.setColor(Color.YELLOW);
         pText.setStyle(Paint.Style.STROKE);
         pText.setTextSize(boxes[0].getSizeY()/2);
+        Typeface ttf = ResourcesCompat.getFont(context, R.font.prince_valiant);
+        pText.setTypeface(ttf);
     }
 
     /**
@@ -117,7 +164,7 @@ public class Building implements GameObject {
                 c.drawBitmap(bitmapConstructor,rectActions[1].left,rectActions[1].top,null);
                 c.drawBitmap(bitmapSoldier,rectActions[2].left,rectActions[2].top,null);
                 c.drawText(""+actualLife+"/"+INIT_LIFE,rectActions[3].left,rectActions[3].top+pText.getTextSize(),pText);
-                c.drawText(buildingState.toString(),rectActions[4].left,rectActions[4].top+pText.getTextSize(),pText);
+                c.drawBitmap(bitmapExit,rectActions[4].left,rectActions[4].top,null);
                 break;
 
 //            case WALL:
@@ -248,9 +295,9 @@ public class Building implements GameObject {
 //                rectActions = new Rect[RECTS_NUMBER_WALL];
 //                break;
 
-            case TOWER:
-                rectActions = new Rect[RECTS_NUMBER_TOWER];
-                break;
+//            case TOWER:
+//                rectActions = new Rect[RECTS_NUMBER_TOWER];
+//                break;
 
 //            case CATAPULT:
 //                rectActions = new Rect[RECTS_NUMBER_CATAPULT];
@@ -305,6 +352,7 @@ public class Building implements GameObject {
         this.bitmapConstructor = bitmapManager.getBitmapConstructor();
         this.bitmapSoldier = bitmapManager.getBitmapSoldier();
         this.bitmapVillager = bitmapManager.getBitmapVillager();
+        this.bitmapExit = bitmapManager.getBitmapExit();
     }
 
     /**
@@ -328,6 +376,7 @@ public class Building implements GameObject {
                         Human soldier = new Human(boxes, 1, boxCreated, context, HumanType.SOLDIER, drawActionsBar, HumanOrientation.SOUTH, drawResourcesBar, bitmapManager);
                         this.setBuildingState(BuildingState.STOPPED);
                         drawResourcesBar.setActualFood(drawResourcesBar.getActualFood() - SOLDIER_FOOD_COST);
+                        drawActionsBar.setHumansCreated(drawActionsBar.getHumansCreated()+1);
                     }
                 }
                 break;
@@ -338,6 +387,7 @@ public class Building implements GameObject {
                         Human villager = new Human(boxes, 1, boxCreated, context, HumanType.VILLAGER, drawActionsBar, HumanOrientation.SOUTH, drawResourcesBar, bitmapManager);
                         this.setBuildingState(BuildingState.STOPPED);
                         drawResourcesBar.setActualFood(drawResourcesBar.getActualFood() - VILLAGER_FOOD_COST);
+                        drawActionsBar.setHumansCreated(drawActionsBar.getHumansCreated()+1);
                     }
                 }
                 break;
@@ -348,6 +398,7 @@ public class Building implements GameObject {
                         Human constructor = new Human(boxes, 1, boxCreated, context, HumanType.CONSTRUCTOR, drawActionsBar, HumanOrientation.SOUTH, drawResourcesBar, bitmapManager);
                         this.setBuildingState(BuildingState.STOPPED);
                         drawResourcesBar.setActualFood(drawResourcesBar.getActualFood() - CONSTRUCTOR_FOOD_COST);
+                        drawActionsBar.setHumansCreated(drawActionsBar.getHumansCreated()+1);
                     }
                 }
                 break;
@@ -399,7 +450,11 @@ public class Building implements GameObject {
             }
         }else{
             if(y >= drawActionsBar.getInitY()){
-                onTouchActionBarObject(x,y);
+                try {
+                    onTouchActionBarObject(x, y);
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
             }
         }
     }
@@ -454,5 +509,13 @@ public class Building implements GameObject {
     @Override
     public int getActualBox() {
         return initBox;
+    }
+
+    /**
+     * Get the init life of the building.
+     * @return init life of the building.
+     */
+    public int getInitLife() {
+        return initLife;
     }
 }

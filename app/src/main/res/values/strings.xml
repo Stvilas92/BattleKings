@@ -16,12 +16,14 @@
     <array name="list_credits">
         <item>Desarrollador : Aelajandro Vilas</item>
         <item>Dibujos : Alejandro Vilas</item>
-        <item>Dibujos : Andrea Pérez</item>
         <item>Dibujos : kenney.nl</item>
         <item>Dibujos : Freepik</item>
         <item>Texto : 1001Fonts.net</item>
         <item>Botones : kenney.nl</item>
         <item>Sonido : https://freesound.org/s/220209/</item>
+        <item>
+            <div>Icons made by <a href="https://www.flaticon.com/authors/smashicons" title="Smashicons">Smashicons</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a></div>
+        </item>
         <item>Musica : Short But Strong! by Savfk | https://www.youtube.com/savfkmusic
             Music promoted by https://www.free-stock-music.com
             Attribution 4.0 International (CC BY 4.0)
@@ -50,8 +52,9 @@
     <!-- Tutorial -->
     <string name="tutorial_move">Morvese</string>
     <string name="tutorial_action">Acción del personaje</string>
+    <string name="tutorial_action_building">Acción del Edificio</string>
     <string name="tutorial_objetive">Objetivo del juego</string>
-    <string name="tutorial_objetive_description">El juego consiste en</string>
+    <string name="tutorial_objetive_description">"El juego consiste en una supervivencia frente a un enemigo.      Los enemigos tendran el objetivo de destruir nuestro edificio principal mientras que el jugador debe defenderlo.      Si el enemigo destruye nuestro edificio principal, finalizará la partida.          En el mapa habrá distribuidos los siguientes elementos.          -Arboles : Que suministran madera.          -Setas : Que suministran comida.          -Rocas : Que suministran piedra.      Para defenderse, el jugador podrá crear las siguientes unidades,todas cuestan comida:      -Constructor: Para reparar el edificio principal.      -Soldado: Para atacar al enemigo.      -Recolector: Para recoger recusos del mapa. "</string>
 
     <!-- On game menu-->
     <string name="game_yes">Si</string>
@@ -59,4 +62,10 @@
     <string name="game_ok">OK</string>
     <string name="game_exit">¿Desea salir del juego?</string>
     <string name="game_end">Fin de la partida.</string>
+
+    <!-- Tutorial-->
+    <string name="tutorial_move_text">Para moverte solo tienes que seleccionar una unidad y hacer click en el destino donde quieras que se mueva el personaje</string>
+    <string name="tutorial_create_text">Para crear un personaje debes selecccionar el edificio principal y seleccionar el personaje que desees crear. </string>
+    <string name="tutorial_action_text">Para que un personaje haga su accion , debes seleccionar el boton de accion (El primero a la izquierda) , y luego hacer click en el objeto sobre el que recaiga la accion.
+    La accion del soldado es atacar a un enemigo. La accion del constructor es reparar el edificio principal. La accion del recolectar es recoger cualquier recurso.</string>
 </resources>

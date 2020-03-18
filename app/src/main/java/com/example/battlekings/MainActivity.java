@@ -2,20 +2,28 @@ package com.example.battlekings;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import android.Manifest;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.SoundPool;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Vibrator;
 import android.provider.MediaStore;
 import android.text.InputType;
@@ -27,45 +35,103 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-
+import com.example.battlekings.Database.BD;
+import com.example.battlekings.Database.PlayerData;
 import com.example.battlekings.Screen.GameView;
+import com.example.battlekings.Utils.Language;
 import com.example.battlekings.Utils.Options;
-
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.Locale;
 
+/**
+ * Main Class of the application. Here are all the menus, configuration, user information, credits,
+ * tutorials and the way to init a new game.
+ */
 public class MainActivity extends AppCompatActivity {
+    /**   Used to chargue Layout menu_main */
     private static final int LAYOUT_MAIN = R.layout.menu_main;
+    /**   Used to chargue Layout menu_play */
     private static final int LAYOUT_PLAY = R.layout.menu_play;
+    /**   Used to chargue Layout menu_options */
     private static final int LAYOUT_OPTIONS = R.layout.menu_options;
+    /**   Used to chargue Layout menu_profile */
     private static final int LAYOUT_PROFILE = R.layout.menu_profile;
+    /**   Used to chargue Layout menu_credits */
     private static final int LAYOUT_CREDITS = R.layout.menu_credits;
+    /**   Used to chargue Layout tutoria */
+    private static final int LAYOUT_TUTORIAL = R.layout.tutoria;
+    /**   Used to chargue Layout video */
+    private static final int LAYOUT_VIDEO = R.layout.video;
+    /**   Used to chargue Layout game_description */
+    private static final int LAYOUT_DESCRIPTION = R.layout.game_description;
+    /**   Used to chargue the phone camera activity */
     private static final int REQUEST_IMAGE_CAPTURE = 1;
+    /**   Used to chargue tutorial type move */
+    private static final int TUTORIAL_MOVE = 1;
+    /**   Used to chargue tutorial type create */
+    private static final int TUTORIAL_CREATE = 2;
+    /**   Used to chargue tutorial type action */
+    private static final int TUTORIAL_ACTION= 3;
 
-
+    /**   Default text of text view username on profile layout */
+    private String username = "username";
+    /**   Used to play the music on the menus */
     private MediaPlayer mediaPlayer;
+    /**   Used to save specified data of the game */
     private SharedPreferences preferences;
+    /**   Options of the game. Include volume,vibration and language */
     private Options options;
+    /**   Layout that shows on the screen*/
     private int actualLayout = LAYOUT_MAIN;
+    /**   App resources*/
     private Resources res;
+    /**   Used to manage the game database*/
     private BD bd;
+    /**   Used to save the photo toke from camera on user profile*/
     private ImageView imageView;
+    /**   Used to save the user name on user profile*/
     private AlertDialog.Builder builder;
+    /**   Used to show the user name on user profile*/
     private TextView tvUsernameValue;
+    /**   Used to play buttons sounds on each touch*/
     private AudioManager audioManager;
+    /**   Used to play buttons sounds on each touch*/
     private SoundPool soundEffects;
+    /**   Used to control the volume of each sound*/
     private int btnSound,volume;
+    /**   Actual main activity*/
     private MainActivity mainActivity;
+    /**   Used to manage the screen orientarion. false - portait, true - landscape*/
     private boolean screnOrientation = false;
+    /**   Control the game when its init. All the game; movement, clicks, drawing, memory etc*/
     private GameView game;
+    /**   Used to mange if the game is init whe onResume and onPause are called*/
     private boolean flagInit = false,gameRunning = false;
+
+    /**
+     * External file to save a photo toke from camera
+     */
+    private File f;
+    private  int imageByteArraySize;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         createDialog();
+        File dir = Environment.getExternalStorageDirectory();
+        String state = Environment.getExternalStorageState();
+        if (state.equals(Environment.MEDIA_MOUNTED)) {
+            checkPermision();
+            f = new File(dir.getAbsolutePath(), "camera.png");
+        }
+
         preferences = getPreferences(getApplicationContext().MODE_PRIVATE);
-        options = new Options(false,false,Language.ENGLISH);
-        getOptionsFromPreferences(preferences);
+        options = new Options(false,false, Language.ENGLISH);
+        getOptionsFromPreferences();
         setContentView(actualLayout);
 
         //Audio
@@ -74,14 +140,6 @@ public class MainActivity extends AppCompatActivity {
         audioManager = (AudioManager)this.getSystemService(Context.AUDIO_SERVICE);
         int v=audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
         mediaPlayer.setVolume(v/2,v/2);
-
-        bd= new BD(this,"game",null,1);
-        SQLiteDatabase db = bd.getWritableDatabase();
-        if(db != null){
-            PlayerData data = new PlayerData(10,5,9,124,3,7,2);
-            bd.putData(db,data);
-            db.close();
-        }
 
         //Main menu
         inicializateComponentsMain();
@@ -102,11 +160,8 @@ public class MainActivity extends AppCompatActivity {
         btnSound = soundEffects.load(getApplicationContext(),R.raw.click,1);
         inicializateComponentsMain();
         mediaPlayer.setLooping(true);
-        if(options.isMusic()) {
-            mediaPlayer.start();
-        }
         volume = 1;
-
+        loadImage();
         setFullScreen();
 
 
@@ -277,18 +332,18 @@ public class MainActivity extends AppCompatActivity {
                 android.content.res.Configuration configuration;
                 DisplayMetrics dm = res.getDisplayMetrics();
                 configuration = new Configuration(res.getConfiguration());
-                if(options.getLanguage().equals(Language.ESPAÑOL)){
+                if(options.getLanguage().equals(Language.SPANISH)){
                     options.setLanguage(Language.ENGLISH);
                     configuration.setLocale(new Locale("en"));
                 }else if(options.getLanguage().equals(Language.ENGLISH)){
-                    options.setLanguage(Language.ESPAÑOL);
+                    options.setLanguage(Language.SPANISH);
                     configuration.setLocale(new Locale("es"));
                 }
 
                 if(options.isVibration()) {
                     vibrate();
                 }
-                //TODO pendiente de hacer
+                //TODO Da error
                 getApplicationContext().createConfigurationContext(configuration);
                 res.updateConfiguration(configuration,dm);
             }
@@ -397,6 +452,15 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        btnTutorial.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                changeLayout(LAYOUT_TUTORIAL);
+                setContentView(actualLayout);
+                inicializateComponentsTutorial();
+            }
+        });
+
         btnNewGame.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
@@ -405,12 +469,11 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        btnTutorial.setOnClickListener(new View.OnClickListener() {
+        btnTutorial.setOnTouchListener(new View.OnTouchListener() {
             @Override
-            public void onClick(View v) {
-                if(options.isVibration()) {
-                    vibrate();
-                }
+            public boolean onTouch(View v, MotionEvent event) {
+                btnTouch(v,event);
+                return false;
             }
         });
 
@@ -454,6 +517,101 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
+     * Inicializate components of the view 'tutorial'
+     */
+    private void inicializateComponentsTutorial(){
+        setFullScreen();
+        final Button btnBack = findViewById(R.id.btnBackTutorial);
+        final Button btnObjective = findViewById(R.id.btnObjective);
+        final Button btnMove = findViewById(R.id.btnHowToMove);
+        final Button btnActChar = findViewById(R.id.btnHowToAction);
+        final Button btnActBuild = findViewById(R.id.btnHowToActionBuild);
+
+        btnObjective.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                changeLayout(LAYOUT_DESCRIPTION);
+                setContentView(actualLayout);
+                inicializateDescription();
+            }
+        });
+
+        btnObjective.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                btnTouch(v,event);
+                return false;
+            }
+        });
+
+        btnMove.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                changeLayout(LAYOUT_VIDEO);
+                setContentView(actualLayout);
+                inicializateVideo(TUTORIAL_MOVE);
+            }
+        });
+
+        btnMove.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                btnTouch(v,event);
+                return false;
+            }
+        });
+
+        btnActChar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                changeLayout(LAYOUT_VIDEO);
+                setContentView(actualLayout);
+                inicializateVideo(TUTORIAL_ACTION);
+            }
+        });
+
+        btnActChar.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                btnTouch(v,event);
+                return false;
+            }
+        });
+
+        btnActBuild.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                changeLayout(LAYOUT_VIDEO);
+                setContentView(actualLayout);
+                inicializateVideo(TUTORIAL_CREATE);
+            }
+        });
+
+        btnActBuild.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                btnTouch(v,event);
+                return false;
+            }
+        });
+
+        btnBack.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onBackPressed();
+            }
+        });
+
+        btnBack.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                btnTouch(v,event);
+                return false;
+            }
+        });
+    }
+
+    /**
      * Inicializate components of the view 'menu_profile'
      */
     private void inicializateComponentsProfile(){
@@ -462,20 +620,14 @@ public class MainActivity extends AppCompatActivity {
         SQLiteDatabase readble = bd.getReadableDatabase();
         PlayerData data = new PlayerData();
         if(readble != null) {
-             data = bd.getTotalData(bd.getReadableDatabase());
+            data = bd.getTotalData(bd.getReadableDatabase());
 
-             readble.close();
+            readble.close();
         }else{
             Toast.makeText(getApplicationContext(),"Player data is not available at the moment",Toast.LENGTH_SHORT).show();
             onBackPressed();
         }
 
-        TextView tvBuildsCreated = findViewById(R.id.txvBuildingsCreatedValue);
-        tvBuildsCreated.setText(""+data.getBuildsCreated());
-        TextView tvBuildsLoss = findViewById(R.id.txvBuildingsLossValue);
-        tvBuildsLoss.setText(""+data.getBuildsLoss());
-        TextView tvBuildsDestroyed = findViewById(R.id.txvBuildingsDestroyedValue);
-        tvBuildsDestroyed.setText(""+data.getBuildsDestroyed());
         TextView tvResourcesCollected = findViewById(R.id.txvResourcesCollectedValue);
         tvResourcesCollected.setText(""+data.getResourcesCollected());
         TextView tvUnitsCreated = findViewById(R.id.txvUnitsCreatedValue);
@@ -485,6 +637,7 @@ public class MainActivity extends AppCompatActivity {
         TextView tvUnitsDestroyed = findViewById(R.id.txvUnitsDestryedValue);
         tvUnitsDestroyed.setText(""+data.getUnitsDestroyed());
         tvUsernameValue = findViewById(R.id.txvUsernameValue);
+        tvUsernameValue.setText(username);
 
         imageView = findViewById(R.id.imageView);
 //        imageView.setImageDrawable(getDrawable(Android));
@@ -522,6 +675,75 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
+     * Inicializate components of the view 'video'
+     */
+    private void inicializateVideo(int tutorialType){
+        Button btnBackVideo = findViewById(R.id.btnBackVideo);
+        ImageView imgUp = findViewById(R.id.tutorial_image_up);
+        ImageView imgDown = findViewById(R.id.tutorial_image_down);
+        TextView  txvTutorial = findViewById(R.id.txv_tutorial);
+
+        switch (tutorialType){
+            case TUTORIAL_MOVE:
+                imgUp.setImageDrawable(getDrawable(R.drawable.tutorial_zone_selected));
+                imgDown.setImageDrawable(null);
+                txvTutorial.setText(getResources().getText(R.string.tutorial_move_text));
+                break;
+
+            case TUTORIAL_CREATE:
+                imgUp.setImageDrawable(getDrawable(R.drawable.tutorial_seleccionar_edificio));
+                imgDown.setImageDrawable(getDrawable(R.drawable.tutorial_seleccionar_edificio_2));
+                txvTutorial.setText(getResources().getText(R.string.tutorial_create_text));
+                break;
+
+            case TUTORIAL_ACTION:
+                imgUp.setImageDrawable(getDrawable(R.drawable.tutorial_enemy_clicked));
+                imgDown.setImageDrawable(getDrawable(R.drawable.turorial_on_action));
+                txvTutorial.setText(getResources().getText(R.string.tutorial_action_text));
+                break;
+        }
+
+        setFullScreen();
+
+        btnBackVideo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onBackPressed();
+            }
+        });
+
+        btnBackVideo.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                btnTouch(v,event);
+                return false;
+            }
+        });
+    }
+
+    /**
+     * Inicializate components of the view 'video'
+     */
+    private void inicializateDescription(){
+        Button btnBackVideo = findViewById(R.id.btnBAckDescription);
+
+        btnBackVideo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onBackPressed();
+            }
+        });
+
+        btnBackVideo.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                btnTouch(v,event);
+                return false;
+            }
+        });
+    }
+
+    /**
      * Change of view when back button is pressed
      */
     @Override
@@ -531,6 +753,20 @@ public class MainActivity extends AppCompatActivity {
             changeLayout(LAYOUT_MAIN);
             setContentView(LAYOUT_MAIN);
             inicializateComponentsMain();
+            if(options.isVibration()) {
+                vibrate();
+            }
+        }else if(actualLayout == LAYOUT_TUTORIAL){
+            changeLayout(LAYOUT_PLAY);
+            setContentView(LAYOUT_PLAY);
+            inicializateComponentsPlay();
+            if(options.isVibration()) {
+                vibrate();
+            }
+        }else if(actualLayout == LAYOUT_VIDEO || actualLayout == LAYOUT_DESCRIPTION){
+            changeLayout(LAYOUT_TUTORIAL);
+            setContentView(LAYOUT_TUTORIAL);
+            inicializateComponentsTutorial();
             if(options.isVibration()) {
                 vibrate();
             }
@@ -566,10 +802,17 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
         volume = 1;
         preferences = getPreferences(getApplicationContext().MODE_PRIVATE);
-        getOptionsFromPreferences(preferences);
-        if(!mediaPlayer.isPlaying() && options.isMusic()) {
-            mediaPlayer.start();
+        getOptionsFromPreferences();
+        String state = Environment.getExternalStorageState();
+        if (state.equals(Environment.MEDIA_MOUNTED)) {
+            File dir = Environment.getExternalStorageDirectory();
+            f = new File(dir.getAbsolutePath(), "camera.png");
+            loadImage();
         }
+        if( options.isMusic()) {
+                mediaPlayer.start();
+        }
+
         setFullScreen();
         if(gameRunning){
             setScrenOrientation(true);
@@ -590,13 +833,13 @@ public class MainActivity extends AppCompatActivity {
         preferences.edit().putBoolean("initGame",flagInit).apply();
         preferences.edit().putBoolean("gameRunning",gameRunning).apply();
         preferences.edit().putBoolean("screenOrientation",screnOrientation).apply();
+        preferences.edit().putString("username",username).apply();
     }
 
     /**
      * Get the option class and variable values save on SharedPreferences
-     * @param sharedPreferences shared preferenced witch contains Options class variables
      */
-    private void getOptionsFromPreferences(SharedPreferences sharedPreferences){
+    private void getOptionsFromPreferences(){
         this.options.setVibration( preferences.getBoolean("vibration",false));
         this.options.setMusic( preferences.getBoolean("music",false));
         String language = preferences.getString("language","ENGLISH");
@@ -604,6 +847,7 @@ public class MainActivity extends AppCompatActivity {
         this.flagInit = preferences.getBoolean("initGame",false);
         this.gameRunning = preferences.getBoolean("gameRunning",false);
         this.screnOrientation = preferences.getBoolean("screenOrientation",false);
+        this.username = preferences.getString("username","Username");
     }
 
     /**
@@ -686,6 +930,7 @@ public class MainActivity extends AppCompatActivity {
      * Start the android dprefedefined camera activity
      */
     private void dispatchTakePictureIntent() {
+        mediaPlayer.pause();
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
             startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
@@ -722,7 +967,8 @@ public class MainActivity extends AppCompatActivity {
         builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                tvUsernameValue.setText(input.getText().toString());
+                username = input.getText().toString();
+                tvUsernameValue.setText(username);
             }
         });
         builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -763,4 +1009,90 @@ public class MainActivity extends AppCompatActivity {
     public void setGameRunning(boolean gameRunning){
         this.gameRunning = gameRunning;
     }
+
+    /**
+     * Get URI of a file from the project resources directory.
+     * @param mediaName
+     * @return
+     */
+    private String getMedia(String mediaName) {
+        return "android.resource://" + getPackageName() +
+                "/raw/" + mediaName;
+    }
+
+
+    public void saveImage(){
+        checkPermision();
+        Drawable drawable = imageView.getDrawable();
+        FileOutputStream outputStream = null;
+        byte[] bitmapdata = null;
+
+        try {
+            if (drawable != null) {
+                Bitmap bitmap = ((BitmapDrawable) drawable).getBitmap();
+                ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
+                bitmapdata = stream.toByteArray();
+                bitmap.recycle();
+            }
+            outputStream = new FileOutputStream(f);
+            outputStream.write(bitmapdata);
+            imageByteArraySize = bitmapdata.length;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }catch (Exception e) {
+            e.printStackTrace();
+        }finally {
+            try {
+                if(outputStream != null) {
+                    outputStream.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public void loadImage(){
+        checkPermision();
+        Drawable drawable = null;
+        FileInputStream fileInputStream = null;
+
+        try {
+            fileInputStream = new FileInputStream(f);
+            fileInputStream.read();
+
+            int cursor,index = 0;
+            byte[] imageByte = new byte[imageByteArraySize];
+            while ((cursor =fileInputStream.read()) != -1) {
+                imageByte[index]= (byte) cursor;
+            }
+
+            drawable = new BitmapDrawable(BitmapFactory.decodeByteArray(imageByte, 0, imageByte.length));
+            imageView.setImageDrawable(drawable);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }finally {
+            try {
+                if(fileInputStream != null) {
+                    fileInputStream.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public void checkPermision(){
+        if(PackageManager.PERMISSION_GRANTED == ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE)){
+            return;
+        }else{
+            int requestCode=1;
+            ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, requestCode);
+            ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, requestCode);
+        }
+    }
+
 }

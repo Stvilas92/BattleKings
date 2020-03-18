@@ -6,7 +6,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
-
+import android.graphics.Typeface;
 import com.example.battlekings.DrawObjects.DrawObjectSubtype;
 import com.example.battlekings.DrawObjects.DrawObjectType;
 import com.example.battlekings.DrawObjects.GameObject;
@@ -16,68 +16,142 @@ import com.example.battlekings.DrawObjects.buildings.BuildingType;
 import com.example.battlekings.DrawObjects.gameBars.DrawActionsBar;
 import com.example.battlekings.DrawObjects.gameBars.DrawResourcesBar;
 import com.example.battlekings.DrawObjects.nature.Nature;
+import com.example.battlekings.GameManger.Escenario;
+import com.example.battlekings.R;
 import com.example.battlekings.Screen.Box;
 import com.example.battlekings.Utils.BitmapManager;
 import com.example.battlekings.Utils.GameTools;
-
+import java.util.ArrayList;
 import java.util.HashMap;
+import androidx.core.content.res.ResourcesCompat;
 
 /**
  * Represents a human. Human can be do different things depending on the type (VILLAGER,CONSTRUCTOR,SOLDIER)
  */
 public class Human implements GameObject {
+    /** Rect height of draw action bar buttons*/
     private static final double RECT_HEIGTH = 1.5;
+    /** Rect width of draw action bar buttons*/
     private static final double RECT_WIDTH = 1.5;
+    /** Init point x to draw action bar buttons*/
     private static final int INIT_X = 2;
+    /** Distance between the buttons of the action bar*/
     private static final int SEPARATE = 2;
+    /** Rects number of the action bar*/
     private static final int RECTS_NUMBER_HUMAN = 3;
+    /** Init human life*/
     private static final int INIT_LIFE = 100;
+    /** Points of the main build life that a constructor repair when he does an action*/
     private static final int REPAIR = 1;
+    /** Points of a resource that a villager get when he does an action*/
     private static final int COLLECT = 1;
+    /** Points of a enemy life down when a soldier  does an action*/
     private static final int ATACK = 10;
+    /** Wood needed to repair one point of the main building*/
     private static final int WOOD_TO_REPAIR = 2;
-    private static final int STONE_TO_CONSTRUCT = 200;
+    /** Stone needed to repair one point of the main building*/
+    private static final int STONE_TO_CONSTRUCT = 2;
 
-
+    /**
+     * sizeX size of the box witch contains a human
+     * sizeRectX size of the rect of drawActionBar
+     */
     private int sizeX = 1, sizeRectX;
+
+    /**
+     * sizeY size of the box witch contains a human
+     * sizeRectY size of the rect of drawActionBar
+     */
     private int sizeY = 1, sizeRectY;
-    private int[] boxesOcuped;
+    /** Total boxes */
     private Box[] boxes;
-    private int id, actualBox, rectHeigth, lastBox;
+    /**
+     * actualBox Actual box occupied by the human
+     * lastBox Last box occupied by the human
+     * rectHeight Rect height of the drawActionBar
+     */
+    private int  actualBox, rectHeigth, lastBox;
+    /**
+     * humanBitmap bitmap of a human when the action is ON_STOPPED
+     * bitmapVillager bitmap of a villager when the action is ON_STOPPED
+     * bitmapConstructor constructor of a constructor when the action is ON_STOPPED
+     * bitmapSoldier soldier of a soldier when the action is ON_STOPPED
+     * exitBitmap bitmap of a exit button on th DrawActionsBar
+     * actionBitmap bitmap of action button DrawActionsBar
+     * bitmapEnemy bitmap of a enemy when the action is ON_STOPPED
+     */
     private Bitmap humanBitmap, bitmapVillager, bitmapConstructor, bitmapSoldier, exitBitmap, actionBitmap, bitmapEnemy;
-    private Bitmap[] humanStopped;
+
+    /**
+     * humanWalking human bitmaps related with actual human orientation to draw when the action is ON_WALKING
+     * humanAction human bitmaps related with actual human orientation to draw when the action is ON_ACTION
+     * humanDead human bitmaps related with actual human orientation to draw when the action is ON_DEAD
+     */
     private HashMap<HumanOrientation, Bitmap[]> humanWalking, humanAction, humanDead;
+    /** Application context*/
     private Context context;
+    /** Indicate if the human is selected */
     private boolean selected = false;
+    /** DrawActionsBar of the human */
     private DrawActionsBar drawActionsBar;
+    /** DrawResourcesBar of the game */
     private DrawResourcesBar drawResourcesBar;
+    /**
+     * p paint to draw on the box
+     * pText paint to draw on the DrawActionsBar
+     */
     private Paint p, pText;
+    /** DrawObjectSubtype of the box that contains a human*/
     private DrawObjectSubtype drawObjectSubtype;
+    /** Canvas to draw */
     private Canvas c;
 
     //Game variables
+    /** Actual human type*/
     private HumanType humanType;
+    /** Actual human orientation*/
     private HumanOrientation humanOrientation;
+    /** Rects of the action bar*/
     private Rect[] rectActions;
+    /** Actions of each rect of the action bar*/
     private Runnable[] actions;
+    /** Human init life*/
     private int actualLife = INIT_LIFE;
+    /** Actual human state*/
     private HumanState humanState = HumanState.STTOPED;
+    /**
+     * boxDestiny box to move when the state is ON_ACTION or ON_WALKING
+     * boxMiddleDestiny box alternative to dodge an object when the state is ON_ACTION or ON_WALKING
+     */
     private int boxDestiny = -1,boxMiddleDestiny = -1;
-    private int moveXIndex = 0, moveYIndex = 0, movingDifferenceX, movingDifferenceY;
+    /**
+     * movingDifferenceX horizontal difference between boxDestiny and actualBox
+     * movingDifferenceY vertical difference between boxDestiny and actualBox
+     */
+    private int movingDifferenceX, movingDifferenceY;
+    /** Indexes to select a bitmap on humanWalking, humanAction, humanDead*/
     private int walkingIndex = 0, actionIndex = 0, deadIndex = 0;
+    /** Indicates the end of the action*/
     private boolean flagActionEnd = false;
+    /** Indicates if the user is selecting a new objectObjetive to do an action*/
     private boolean selecttingMode = false;
+    /** GameObject objetive when the human is on ON_ACTION state*/
     private GameObject objectObjetive;
+    /** Bitmap Manager of the game*/
     private BitmapManager bitmapManager;
-    private boolean flagEndBitmap = false, tryingMoveAlternative = false;
+    /** Indicate if a bitmap is end to draw*/
+    private boolean flagEndBitmap = false;
+    private  int lastIndexChangued = 0,contMoveDirection = 0;
+    /** Last diference of the boxes left until the box destiny */
+    private String lastDifference = "";
 
+    private ArrayList<Integer>lastIndexesWalked = new ArrayList<>();
 
     public Human(Box[] boxes, int id, int actualBox, Context context, HumanType humanType, DrawActionsBar drawActionsBar, HumanOrientation humanOrientation, DrawResourcesBar drawResourcesBar, BitmapManager bitmapManager) {
         this.bitmapManager = bitmapManager;
         this.boxes = boxes;
         this.drawResourcesBar = drawResourcesBar;
         this.humanOrientation = humanOrientation;
-        this.id = id;
         this.actualBox = actualBox;
         this.lastBox = -1;
         this.context = context;
@@ -86,7 +160,8 @@ public class Human implements GameObject {
         this.drawActionsBar = drawActionsBar;
         this.sizeRectY = (int) (boxes[0].getSizeY() * RECT_HEIGTH);
         this.sizeRectX = (int) (boxes[0].getSizeX() * RECT_WIDTH);
-        rectHeigth = drawActionsBar.getInitY() + (((drawActionsBar.getScreenHeight() - drawActionsBar.getInitY()) - this.sizeRectY) / 2);
+//        rectHeigth = drawActionsBar.getInitY() + (((drawActionsBar.getScreenHeight() - drawActionsBar.getInitY()) - this.sizeRectY) / 2);
+        rectHeigth =  drawActionsBar.getInitY();
         makeRectActions();
         this.p = new Paint();
         p.setColor(Color.TRANSPARENT);
@@ -95,6 +170,8 @@ public class Human implements GameObject {
         pText.setColor(Color.YELLOW);
         pText.setStyle(Paint.Style.STROKE);
         pText.setTextSize(boxes[0].getSizeY() / 2);
+        Typeface ttf = ResourcesCompat.getFont(context, R.font.prince_valiant);
+        pText.setTypeface(ttf);
         boxes[actualBox].setDrawObjectTypeAndSubtype(DrawObjectType.HUMAN, drawObjectSubtype, this);
     }
 
@@ -131,6 +208,13 @@ public class Human implements GameObject {
 
                 case ONACTION:
                     if (boxDestiny >= 0) {
+                        if(humanType == HumanType.ENEMY || humanType == HumanType.CONSTRUCTOR ) {
+                            if(actualBox != boxDestiny) {
+                                setEnemyOrConstructorDestiny();
+                            }
+                        }else{
+                            changeSoldierOrCollectorDestiny();
+                        }
                         setMovementDirection();
                         c.drawBitmap(humanWalking.get(humanOrientation)[walkingIndex], x, y, null);
                         walkingIndex++;
@@ -339,6 +423,9 @@ public class Human implements GameObject {
     @Override
     public void setSelected(boolean selected) {
         this.selected = selected;
+        if(!selected){
+            setSelecttingMode(false);
+        }
     }
 
     /**
@@ -415,14 +502,21 @@ public class Human implements GameObject {
         int indexY = boxes[actualBox].getActualGameObjectIndexY();
 
         if (indexX > boxes[actualBox].getMiddleIndexX()) {
+            humanOrientation = HumanOrientation.WEST;
             boxes[actualBox].setActualGameObjectIndexX(boxes[actualBox].getActualGameObjectIndexX() - 1);
+        } else if (indexX < boxes[actualBox].getMiddleIndexX()) {
+            humanOrientation = HumanOrientation.EST;
+            boxes[actualBox].setActualGameObjectIndexX(boxes[actualBox].getActualGameObjectIndexX() + 1);
         } else if (indexY != 0) {
+            humanOrientation = HumanOrientation.NORTH;
             boxes[actualBox].setActualGameObjectIndexY(boxes[actualBox].getActualGameObjectIndexY() - 1);
         } else {
             if(boxMiddleDestiny < 0) {
+                setOrientationAction();
                 boxDestiny = -1;
             }else{
                 boxMiddleDestiny = -1;
+                lastIndexesWalked = new ArrayList<>();
             }
         }
     }
@@ -433,104 +527,68 @@ public class Human implements GameObject {
      *
      * @param humanMovementType
      */
-    public void moveHuman(HumanMovementType humanMovementType) {
+    public void moveHuman(HumanMovementType humanMovementType,int newBoxIndex) {
         int actualBoxIndexX = 0, actualBoxIndexY = 0;
         switch (humanMovementType) {
             case VERTICAL_UP:
                 if (boxes[actualBox].getActualGameObjectIndexY() == 0) {
-                    int newBoxIndex = GameTools.getBoxByIndex(boxes, boxes[actualBox].getIndexX(), boxes[actualBox].getIndexY() - 1);
-                    if (newBoxIndex >=0 && boxes[newBoxIndex].getGameObject() == null) {
-                        boxes[actualBox].setDrawObjectTypeAndSubtype(null, null, null);
-                        actualBoxIndexX = boxes[actualBox].getActualGameObjectIndexX();
-                        lastBox = actualBox;
-                        actualBox = newBoxIndex;
-                        boxes[actualBox].setDrawObjectTypeAndSubtype(DrawObjectType.HUMAN, drawObjectSubtype, this);
-                        boxes[actualBox].setActualGameObjectIndexY(boxes[actualBox].getMovingYSize() - 1);
-                        boxes[actualBox].setActualGameObjectIndexX(actualBoxIndexX);
-//                        if(tryingMoveAlternative){
-//                            tryingMoveAlternative = false;
-//                            moveHorizontal(boxes[]);
-//                        }
-                    } else {
-                        getAlternativeBox(boxes[actualBox].getIndexX() ,boxes[actualBox].getIndexY()-1,true,false);
-//                        tryingMoveAlternative = true;
-                        moveHorizontal(boxes[boxMiddleDestiny].getIndexY(),boxes[actualBox].getIndexY());
-                    }
+                    boxes[actualBox].setDrawObjectTypeAndSubtype(null, null, null);
+                    actualBoxIndexX = boxes[actualBox].getActualGameObjectIndexX();
+                    lastBox = actualBox;
+                    actualBox = newBoxIndex;
+                    boxes[actualBox].setDrawObjectTypeAndSubtype(DrawObjectType.HUMAN, drawObjectSubtype, this);
+                    boxes[actualBox].setActualGameObjectIndexY(boxes[actualBox].getMovingYSize() - 1);
+                    boxes[actualBox].setActualGameObjectIndexX(actualBoxIndexX);
+                    contMoveDirection = 0;
                 } else {
+                    contMoveDirection++;
                     boxes[actualBox].setActualGameObjectIndexY(boxes[actualBox].getActualGameObjectIndexY() - 1);
                 }
                 break;
 
             case VERTICAL_DOWN:
                 if (boxes[actualBox].getActualGameObjectIndexY() == boxes[actualBox].getMovingYSize() - 1) {
-                    int newBoxIndex = GameTools.getBoxByIndex(boxes, boxes[actualBox].getIndexX(), boxes[actualBox].getIndexY() + 1);
-                    if (newBoxIndex >=0 && boxes[newBoxIndex].getGameObject() == null) {
-                        boxes[actualBox].setDrawObjectTypeAndSubtype(null, null, null);
-                        actualBoxIndexX = boxes[actualBox].getActualGameObjectIndexX();
-                        actualBox = newBoxIndex;
-                        boxes[actualBox].setDrawObjectTypeAndSubtype(DrawObjectType.HUMAN, drawObjectSubtype, this);
-                        boxes[actualBox].setActualGameObjectIndexY(0);
-                        boxes[actualBox].setActualGameObjectIndexX(actualBoxIndexX);
-//                        if(tryingMoveAlternative){
-//                            tryingMoveAlternative = false;
-//                            moveHorizontal();
-//                        }
-                    } else {
-                        getAlternativeBox(boxes[actualBox].getIndexX() ,boxes[actualBox].getIndexY()+1,true,true);
-//                        tryingMoveAlternative = true;
-                        moveHorizontal(boxes[boxMiddleDestiny].getIndexY(),boxes[actualBox].getIndexY());
-                    }
+                    boxes[actualBox].setDrawObjectTypeAndSubtype(null, null, null);
+                    actualBoxIndexX = boxes[actualBox].getActualGameObjectIndexX();
+                    actualBox = newBoxIndex;
+                    boxes[actualBox].setDrawObjectTypeAndSubtype(DrawObjectType.HUMAN, drawObjectSubtype, this);
+                    boxes[actualBox].setActualGameObjectIndexY(0);
+                    boxes[actualBox].setActualGameObjectIndexX(actualBoxIndexX);
+                    contMoveDirection = 0;
                 } else {
+                    contMoveDirection++;
                     boxes[actualBox].setActualGameObjectIndexY(boxes[actualBox].getActualGameObjectIndexY() + 1);
                 }
                 break;
 
             case HORIZONTAL_LEFT:
                 if (boxes[actualBox].getActualGameObjectIndexX() == 0) {
-                    int newBoxIndex = GameTools.getBoxByIndex(boxes, boxes[actualBox].getIndexX() - 1, boxes[actualBox].getIndexY());
-                    if (newBoxIndex >=0 && boxes[newBoxIndex].getGameObject() == null ) {
-                        boxes[actualBox].setDrawObjectTypeAndSubtype(null, null, null);
-                        actualBoxIndexY = boxes[actualBox].getActualGameObjectIndexY();
-                        lastBox = actualBox;
-                        actualBox = newBoxIndex;
-                        boxes[actualBox].setDrawObjectTypeAndSubtype(DrawObjectType.HUMAN, drawObjectSubtype, this);
-                        boxes[actualBox].setActualGameObjectIndexX(boxes[actualBox].getMovingXSize() - 1);
-                        boxes[actualBox].setActualGameObjectIndexY(actualBoxIndexY);
-//                        if(tryingMoveAlternative){
-//                            tryingMoveAlternative = false;
-//                            moveVertical();
-//                        }
-                    } else {
-                        getAlternativeBox(boxes[actualBox].getIndexX() - 1,boxes[actualBox].getIndexY(),false,false);
-//                        tryingMoveAlternative = true;
-                        moveVertical(boxes[boxMiddleDestiny].getIndexY(),boxes[actualBox].getIndexY());
-                    }
+                    boxes[actualBox].setDrawObjectTypeAndSubtype(null, null, null);
+                    actualBoxIndexY = boxes[actualBox].getActualGameObjectIndexY();
+                    lastBox = actualBox;
+                    actualBox = newBoxIndex;
+                    boxes[actualBox].setDrawObjectTypeAndSubtype(DrawObjectType.HUMAN, drawObjectSubtype, this);
+                    boxes[actualBox].setActualGameObjectIndexX(boxes[actualBox].getMovingXSize() - 1);
+                    boxes[actualBox].setActualGameObjectIndexY(actualBoxIndexY);
+                    contMoveDirection = 0;
                 } else {
+                    contMoveDirection++;
                     boxes[actualBox].setActualGameObjectIndexX(boxes[actualBox].getActualGameObjectIndexX() - 1);
                 }
                 break;
 
             case HORIZONTAL_RIGHT:
                 if (boxes[actualBox].getActualGameObjectIndexX() == boxes[actualBox].getMovingXSize() - 1) {
-                    int newBoxIndex = GameTools.getBoxByIndex(boxes, boxes[actualBox].getIndexX() + 1, boxes[actualBox].getIndexY());
-                    if (newBoxIndex >=0 && boxes[newBoxIndex].getGameObject() == null) {
-                        boxes[actualBox].setDrawObjectTypeAndSubtype(null, null, null);
-                        actualBoxIndexY = boxes[actualBox].getActualGameObjectIndexY();
-                        lastBox = actualBox;
-                        actualBox = newBoxIndex;
-                        boxes[actualBox].setDrawObjectTypeAndSubtype(DrawObjectType.HUMAN, drawObjectSubtype, this);
-                        boxes[actualBox].setActualGameObjectIndexX(0);
-                        boxes[actualBox].setActualGameObjectIndexY(actualBoxIndexY);
-//                        if(tryingMoveAlternative){
-//                            tryingMoveAlternative = false;
-//                            moveVertical();
-//                        }
-                    } else {
-                        getAlternativeBox(boxes[actualBox].getIndexX() + 1,boxes[actualBox].getIndexY(),false,true);
-//                        tryingMoveAlternative = true;
-                         moveVertical(boxes[boxMiddleDestiny].getIndexY(),boxes[actualBox].getIndexY());
-                    }
+                    boxes[actualBox].setDrawObjectTypeAndSubtype(null, null, null);
+                    actualBoxIndexY = boxes[actualBox].getActualGameObjectIndexY();
+                    lastBox = actualBox;
+                    actualBox = newBoxIndex;
+                    boxes[actualBox].setDrawObjectTypeAndSubtype(DrawObjectType.HUMAN, drawObjectSubtype, this);
+                    boxes[actualBox].setActualGameObjectIndexX(0);
+                    boxes[actualBox].setActualGameObjectIndexY(actualBoxIndexY);
+                    contMoveDirection = 0;
                 } else {
+                    contMoveDirection++;
                     boxes[actualBox].setActualGameObjectIndexX(boxes[actualBox].getActualGameObjectIndexX() + 1);
                 }
                 break;
@@ -561,6 +619,7 @@ public class Human implements GameObject {
 
             if (actualBox == boxMiddleDestiny) {
                 boxMiddleDestiny = -1;
+                lastIndexesWalked = new ArrayList<>();
                 return;
             }
             movingDifferenceX = boxes[actualBox].getIndexX() - boxes[boxToMove].getIndexX();
@@ -574,49 +633,133 @@ public class Human implements GameObject {
                 difference = differenceAbs > 0 ? "horizontal" : "vertical";
             }
 
+            int newBoxIndex,indexX = 0,indexY = 0;
+            if(boxMiddleDestiny > 0 && difference.equals("0") && !checkHumanOrientation()){
+                for (int i = 0; i < HumanOrientation.values().length; i++) {
+                    if(humanOrientation.equals(HumanOrientation.values()[i])){
+                        if(i == HumanOrientation.values().length - 1) {
+                            humanOrientation = HumanOrientation.values()[0];
+                            break;
+                        }else{
+                            humanOrientation = HumanOrientation.values()[i+1];
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if(difference.equals("horizontal") && contMoveDirection >= Box.getMovingXSize()){
+                difference = "vertical";
+            }else if(difference.equals("vertical") && contMoveDirection >= Box.getMovingYSize()){
+                difference = "horizontal";
+            }
+
+
             switch (difference) {
                 case "0":
+                    lastDifference = "0";
                     switch (humanOrientation) {
                         case EST:
-                            humanOrientation = HumanOrientation.EST;
-                            moveHuman(HumanMovementType.HORIZONTAL_RIGHT);
+                            indexX = boxes[actualBox].getIndexX() + 1;
+                            indexY = boxes[actualBox].getIndexY();
+                            newBoxIndex = GameTools.getBoxByIndex(boxes, indexX,indexY);
+
+                            if (newBoxIndex >=0 && boxes[newBoxIndex].getGameObject() == null && checkBox(indexX,indexY)) {
+                                humanOrientation = HumanOrientation.EST;
+                                moveHuman(HumanMovementType.HORIZONTAL_RIGHT,newBoxIndex);
+                            }else {
+                                getAlternativeBox(boxes[actualBox].getIndexX() + 1,boxes[actualBox].getIndexY(),false,movingDifferenceY<=0);
+                            }
                             break;
 
                         case WEST:
-                            humanOrientation = HumanOrientation.WEST;
-                            moveHuman(HumanMovementType.HORIZONTAL_LEFT);
+                            indexX = boxes[actualBox].getIndexX() - 1;
+                            indexY = boxes[actualBox].getIndexY();
+                            newBoxIndex = GameTools.getBoxByIndex(boxes, indexX,indexY);
+
+                            if (newBoxIndex >=0 && boxes[newBoxIndex].getGameObject() == null && checkBox(indexX,indexY)) {
+                                humanOrientation = HumanOrientation.WEST;
+                                moveHuman(HumanMovementType.HORIZONTAL_LEFT,newBoxIndex);
+                            }else {
+                                getAlternativeBox(boxes[actualBox].getIndexX() - 1,boxes[actualBox].getIndexY(),false,movingDifferenceY<=0);
+                            }
                             break;
 
                         case NORTH:
-                            humanOrientation = HumanOrientation.NORTH;
-                            moveHuman(HumanMovementType.VERTICAL_UP);
+                            indexX = boxes[actualBox].getIndexX();
+                            indexY = boxes[actualBox].getIndexY() - 1;
+                            newBoxIndex = GameTools.getBoxByIndex(boxes, indexX,indexY);
+
+                            if (newBoxIndex >=0 && boxes[newBoxIndex].getGameObject() == null && checkBox(indexX,indexY)) {
+                                humanOrientation = HumanOrientation.NORTH;
+                                moveHuman(HumanMovementType.VERTICAL_UP,newBoxIndex);
+                            }else {
+                                getAlternativeBox(boxes[actualBox].getIndexX() ,boxes[actualBox].getIndexY()-1,true,movingDifferenceX<=0);
+                            }
                             break;
 
                         case SOUTH:
-                            humanOrientation = HumanOrientation.SOUTH;
-                            moveHuman(HumanMovementType.VERTICAL_DOWN);
+                            indexX = boxes[actualBox].getIndexX();
+                            indexY = boxes[actualBox].getIndexY() + 1;
+                            newBoxIndex = GameTools.getBoxByIndex(boxes, indexX,indexY);
+
+                            if (newBoxIndex >=0 && boxes[newBoxIndex].getGameObject() == null && checkBox(indexX,indexY)) {
+                                humanOrientation = HumanOrientation.SOUTH;
+                                moveHuman(HumanMovementType.VERTICAL_DOWN,newBoxIndex);
+                            }else {
+                                getAlternativeBox(boxes[actualBox].getIndexX() ,boxes[actualBox].getIndexY()+1,true,movingDifferenceX<=0);
+                            }
                             break;
                     }
                     break;
 
                 case "horizontal":
+                    lastDifference = "horizontal";
                     if (movingDifferenceX >= 0) {
-                        humanOrientation = HumanOrientation.WEST;
-                        moveHuman(HumanMovementType.HORIZONTAL_LEFT);
+                        indexX = boxes[actualBox].getIndexX() - 1;
+                        indexY = boxes[actualBox].getIndexY();
+                        newBoxIndex = GameTools.getBoxByIndex(boxes, boxes[actualBox].getIndexX() - 1, boxes[actualBox].getIndexY());
+                        if (newBoxIndex >= 0 && boxes[newBoxIndex].getGameObject() == null && checkBox(indexX,indexY)) {
+                            humanOrientation = HumanOrientation.WEST;
+                            moveHuman(HumanMovementType.HORIZONTAL_LEFT,newBoxIndex);
+                        }else {
+                            getAlternativeBox(boxes[actualBox].getIndexX() - 1,boxes[actualBox].getIndexY(),false,movingDifferenceY<=0);
+                        }
                     } else {
-                        humanOrientation = HumanOrientation.EST;
-                        moveHuman(HumanMovementType.HORIZONTAL_RIGHT);
+                        indexX = boxes[actualBox].getIndexX() + 1;
+                        indexY = boxes[actualBox].getIndexY();
+                        newBoxIndex = GameTools.getBoxByIndex(boxes, boxes[actualBox].getIndexX() + 1, boxes[actualBox].getIndexY());
+                        if (newBoxIndex >= 0 && boxes[newBoxIndex].getGameObject() == null && checkBox(indexX,indexY)) {
+                            humanOrientation = HumanOrientation.EST;
+                            moveHuman(HumanMovementType.HORIZONTAL_RIGHT,newBoxIndex);
+                        }else {
+                            getAlternativeBox(boxes[actualBox].getIndexX() + 1,boxes[actualBox].getIndexY(),false,movingDifferenceY<=0);
+                        }
                     }
                     break;
 
                 case "vertical":
-                    vetical:
+                    lastDifference = "vertical";
                     if (movingDifferenceY <= 0) {
-                        humanOrientation = HumanOrientation.SOUTH;
-                        moveHuman(HumanMovementType.VERTICAL_DOWN);
+                        indexX = boxes[actualBox].getIndexX();
+                        indexY = boxes[actualBox].getIndexY() + 1;
+                        newBoxIndex = GameTools.getBoxByIndex(boxes, boxes[actualBox].getIndexX(), boxes[actualBox].getIndexY()+ 1);
+                        if (newBoxIndex >=0 && boxes[newBoxIndex].getGameObject() == null && checkBox(indexX,indexY)) {
+                            humanOrientation = HumanOrientation.SOUTH;
+                            moveHuman(HumanMovementType.VERTICAL_DOWN,newBoxIndex);
+                        }else {
+                            getAlternativeBox(boxes[actualBox].getIndexX() ,boxes[actualBox].getIndexY()-1,true,movingDifferenceX<=0);
+                        }
                     } else {
-                        humanOrientation = HumanOrientation.NORTH;
-                        moveHuman(HumanMovementType.VERTICAL_UP);
+                        indexX = boxes[actualBox].getIndexX();
+                        indexY = boxes[actualBox].getIndexY() - 1;
+                        newBoxIndex = GameTools.getBoxByIndex(boxes, boxes[actualBox].getIndexX(), boxes[actualBox].getIndexY()- 1);
+                        if (newBoxIndex >=0 && boxes[newBoxIndex].getGameObject() == null && checkBox(indexX,indexY)) {
+                            humanOrientation = HumanOrientation.NORTH;
+                            moveHuman(HumanMovementType.VERTICAL_UP,newBoxIndex);
+                        }else {
+                            getAlternativeBox(boxes[actualBox].getIndexX() ,boxes[actualBox].getIndexY()+1,true,movingDifferenceX<=0);
+                        }
                     }
                     break;
             }
@@ -624,6 +767,7 @@ public class Human implements GameObject {
         } else {
             if (actualBox == boxMiddleDestiny) {
                 boxMiddleDestiny = -1;
+                lastIndexesWalked = new ArrayList<>();
                 return;
             }else {
                 if (this.humanState == HumanState.ONACTION) {
@@ -633,32 +777,6 @@ public class Human implements GameObject {
                     boxDestiny = -1;
                 }
             }
-        }
-    }
-
-    /**
-     * Move a human vertically depending on the value of movingDifferenceX
-     */
-    public void moveHorizontal(int actualIndexX,int destiniyIndexX) {
-        if((actualIndexX - destiniyIndexX >= 0 )){
-            humanOrientation = HumanOrientation.EST;
-            moveHuman(HumanMovementType.HORIZONTAL_RIGHT);
-        }else{
-            humanOrientation = HumanOrientation.WEST;
-            moveHuman(HumanMovementType.HORIZONTAL_LEFT);
-        }
-    }
-
-    /**
-     * Move a human horizontally depending on the value of movingDifferenceY
-     */
-    public void moveVertical(int actualIndexY,int destiniyIndexY) {
-        if((destiniyIndexY - actualIndexY >= 0 )){
-            humanOrientation = HumanOrientation.NORTH;
-            moveHuman(HumanMovementType.VERTICAL_UP);
-        }else{
-            humanOrientation = HumanOrientation.SOUTH;
-            moveHuman(HumanMovementType.VERTICAL_DOWN);
         }
     }
 
@@ -778,12 +896,12 @@ public class Human implements GameObject {
             case CONSTRUCTOR:
                 if (gameObject != null && gameObject.getClass().equals(Building.class)) {
                     if(drawResourcesBar.getActualWood() > WOOD_TO_REPAIR && drawResourcesBar.getActualStone() > STONE_TO_CONSTRUCT) {
-                        if (((Building) gameObject).getActualLife() != 100) {
+                        if (((Building) gameObject).getActualLife() < ((Building) gameObject).getInitLife()) {
                             switch (((Building) gameObject).getBuildingType()) {
                                 case MAIN:
-                                    drawResourcesBar.setActualWood(drawResourcesBar.getActualWood()-REPAIR);
-                                    drawResourcesBar.setActualStone(drawResourcesBar.getActualStone()-REPAIR);
-                                        ((Building) gameObject).setActualLife(((Building) gameObject).getActualLife() + REPAIR);
+                                    drawResourcesBar.setActualWood(drawResourcesBar.getActualWood()-WOOD_TO_REPAIR);
+                                    drawResourcesBar.setActualStone(drawResourcesBar.getActualStone()-STONE_TO_CONSTRUCT);
+                                    ((Building) gameObject).setActualLife(((Building) gameObject).getActualLife() + REPAIR);
 
                                     break;
 //                                case TOWER:
@@ -858,6 +976,7 @@ public class Human implements GameObject {
                     if (gameObject.getClass().equals(Human.class) && ((Human) gameObject).getHumanType() == HumanType.ENEMY) {
                         ((Human) gameObject).setActualLife(((Human) gameObject).getActualLife() - ATACK);
                         if (((Human) gameObject).getActualLife() <= 0) {
+                            drawActionsBar.setEnemiesDead(drawActionsBar.getEnemiesDead()+1);
                             flagActionEnd = true;
                         }
                     }
@@ -898,9 +1017,17 @@ public class Human implements GameObject {
     public void setSelecttingMode(boolean selecttingMode) {
         this.selecttingMode = selecttingMode;
         if (selecttingMode) {
-            actionBitmap = bitmapManager.getBitmapActionHandYellow();
+            if(humanType == HumanType.SOLDIER ) {
+                actionBitmap = bitmapManager.getBitmapActionSwordBrown();
+            }else{
+                actionBitmap = bitmapManager.getBitmapActionHandBrown();
+            }
         } else {
-            actionBitmap = bitmapManager.getBitmapActionHandWhite();
+            if(humanType == HumanType.SOLDIER ) {
+                actionBitmap = bitmapManager.getBitmapActionSword();
+            }else{
+                actionBitmap = bitmapManager.getBitmapActionHandWhite();
+            }
         }
 
     }
@@ -929,6 +1056,8 @@ public class Human implements GameObject {
      */
     private void getAlternativeBox(int indexX,int indexY,boolean xOrY,boolean incrementOrDecrement){
         int index;
+        boolean flagBoxWalked = false;
+
         for (int i = 1; i < 5; i++) {
             for (int j = 0; j < 3; j++) {
                 if (xOrY) {
@@ -945,8 +1074,18 @@ public class Human implements GameObject {
                     }
                 }
 
-                if (boxes[index].getGameObject() == null) {
+
+                if(lastIndexesWalked.size() > 0){
+                    for (int k = 0; k < lastIndexesWalked.size(); k++) {
+                        if(lastIndexesWalked.get(k) == index){
+                            flagBoxWalked = true;
+                        }
+                    }
+                }
+
+                if (checkBox(boxes[index].getIndexX(),boxes[index].getIndexY()) && boxes[index].getGameObject() == null && !flagBoxWalked) {
                     boxMiddleDestiny = index;
+                    lastIndexesWalked.add(index);
                     return;
                 }
             }
@@ -957,6 +1096,9 @@ public class Human implements GameObject {
      * Set the human orientation. Human must be oriented to object objective.
      */
     private void setOrientationAction(){
+        if(objectObjetive == null){
+            return;
+        }
         int indexObjectiveX = boxes[objectObjetive.getActualBox()].getIndexX();
         int indexObjectiveY = boxes[objectObjetive.getActualBox()].getIndexY();
         int indexActualX = boxes[actualBox].getIndexX();
@@ -985,5 +1127,91 @@ public class Human implements GameObject {
      */
     public void setObjectObjetive(GameObject objectObjetive) {
         this.objectObjetive = objectObjetive;
+    }
+
+    /**
+     * Set a box destiny for a constructor or an enemy
+     */
+    private void setEnemyOrConstructorDestiny() {
+        if(boxes[boxDestiny].getGameObject() == null){
+            return;
+        }
+        int[] boxesLimit = Escenario.getBoxesMainBuild();
+        for (int i = 0; i < boxesLimit.length; i++) {
+            if (boxes[boxesLimit[i]].getGameObject() == null) {
+                this.setBoxDestiny(boxesLimit[i]);
+//                this.boxMiddleDestiny = -1;
+                return;
+            }
+        }
+    }
+
+    /**
+     * Chaeck if a box exists into array boxes
+     * @param indexX index X of the box
+     * @param indexY index Y of the box
+     * @return true if the box exist, false, the box not exist
+     */
+    private boolean checkBox(int indexX, int indexY){
+        if(indexX < 0 || indexY < 0){
+            return false;
+        }else if(indexX >= Box.getDIV() || indexY >= Box.getDIV()){
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Check the human orientation depending of the next box in the direction of the orientation, loking if
+     * this box has a GameObject
+     * @return true - the box has a GameObject, false - the box doesn't have a GameObject
+     */
+    private boolean checkHumanOrientation(){
+        if(humanOrientation == HumanOrientation.EST){
+            return boxes[GameTools.getBoxByIndex(boxes,boxes[actualBox].getIndexX() + 1,boxes[actualBox].getIndexY())].getGameObject() == null;
+        }else if(humanOrientation == HumanOrientation.WEST){
+            return boxes[GameTools.getBoxByIndex(boxes,boxes[actualBox].getIndexX() - 1,boxes[actualBox].getIndexY())].getGameObject() == null;
+        }else if(humanOrientation == HumanOrientation.NORTH){
+            return boxes[GameTools.getBoxByIndex(boxes,boxes[actualBox].getIndexX(),boxes[actualBox].getIndexY() - 1)].getGameObject() == null;
+        }else if(humanOrientation == HumanOrientation.SOUTH){
+            return boxes[GameTools.getBoxByIndex(boxes,boxes[actualBox].getIndexX(),boxes[actualBox].getIndexY() + 1)].getGameObject() == null;
+        }
+
+        return false;
+    }
+
+    private void changeSoldierOrCollectorDestiny(){
+        if(boxes[boxDestiny].getGameObject() == null){
+            if(boxes[boxDestiny].getGameObject() == objectObjetive){
+                setHumanState(HumanState.ONACTION);
+                boxDestiny = -1;
+            }else {
+                return;
+            }
+        }
+        int[] boxesLimit = new int[4];
+        boxesLimit[0] = GameTools.getBoxByIndex(boxes,boxes[boxDestiny].getIndexX()-1,boxes[boxDestiny].getIndexY());
+        boxesLimit[1] = GameTools.getBoxByIndex(boxes,boxes[boxDestiny].getIndexX()+1,boxes[boxDestiny].getIndexY());
+        boxesLimit[2] = GameTools.getBoxByIndex(boxes,boxes[boxDestiny].getIndexX(),boxes[boxDestiny].getIndexY()-1);
+        boxesLimit[3] = GameTools.getBoxByIndex(boxes,boxes[boxDestiny].getIndexX(),boxes[boxDestiny].getIndexY()+1);
+
+        for (int i = 0; i < boxesLimit.length; i++) {
+            if( actualBox ==  boxesLimit[i]){
+                boxDestiny = -1;
+                return;
+            }
+            if (boxesLimit[i]!= -1 && boxes[boxesLimit[i]].getGameObject() == this || boxesLimit[i]!= -1 && boxes[boxesLimit[i]].getGameObject() == objectObjetive ) {
+                this.setBoxDestiny(boxesLimit[i]);
+                return;
+            }
+        }
+
+        for (int i = 0; i < boxesLimit.length; i++) {
+            if (boxesLimit[i]!= -1 && boxes[boxesLimit[i]].getGameObject() == null ) {
+                this.setBoxDestiny(boxesLimit[i]);
+                return;
+            }
+        }
     }
 }

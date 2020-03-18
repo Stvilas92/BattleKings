@@ -2,9 +2,22 @@ package com.example.battlekings.Screen;
 
 import com.example.battlekings.GameManger.Escenario;
 
+/**
+ * Class used to manage the boxes that appears on the screen.
+ */
 public class BoxScreenManager {
-    private int onScreenBoxes,initX = 0,initY = 0,boxInit;
+    /**
+     * onScreenBoxes boxes showed on the screen
+     * initX point x that equals to point (0,0) of the device screen
+     * initY point y that equals to point (0,0) of the device screen
+     */
+    private int onScreenBoxes,initX = 0,initY = 0;
+    /**
+     * boxesTotal total boxes of the game, including those that are not drawn
+     * boxesToDraw boxed that will be draw on the scren
+     */
     private Box[] boxesTotal,boxesToDraw;
+    /** Escenario of the game */
     private Escenario escenario;
 
     public BoxScreenManager(int onScreenBoxes, Escenario escenario) {
@@ -53,7 +66,7 @@ public class BoxScreenManager {
         for (int i = 0; i < onScreenBoxes; i++) {
             for (int j = 0; j < onScreenBoxes; j++) {
                 //en los edificios se le pasa la casilla donde empiezan a dibujar
-                if(boxesTotal[boxInit+ indexRead].getDrawObjectType() != null && boxesTotal[boxInit+ indexRead].getDrawObjectSubtype() != null && boxesTotal[indexRead].isInteractable()) {
+                if(boxesTotal[boxInit+ indexRead].getDrawObjectType() != null && boxesTotal[boxInit+ indexRead].getDrawObjectSubtype() != null && true) {
                     boxesToDraw[index].setDrawObjectTypeAndSubtype(boxesTotal[boxInit + indexRead].getDrawObjectType(), boxesTotal[boxInit + indexRead].getDrawObjectSubtype(),
                             boxesTotal[boxInit + indexRead].getGameObject());
                 }else{

@@ -14,37 +14,51 @@ import com.example.battlekings.Utils.BitmapManager;
 import com.example.battlekings.Utils.GameTools;
 import java.util.ArrayList;
 
+/**
+ * Used to put a grouping Gameobjects on a boxes array in a specified form
+ */
 public class Escenario {
+    /** Game Objects total , to put on a boxes array   */
     private static final int OBJECTS_TOTAL = 10;
+    /** Number max of boxes horizonal or vertial*/
     private static final int DIV = 20;
+    /** Nuber of boxes between the player init indexes and the indexes to start to draw objects*/
     private static final int SPACE = 6;
+    /** Index x where the payer init the game*/
     private static final int PLAYER_INIT_X = 20;
+    /** Index y where the payer init the game*/
     private static final int PLAYER_INIT_Y = 20;
+    /** Index x where the main build init the game*/
     private static final int MAIN_BUILDING_INIT_X = 16;
+    /** Index y where the main build  init the game*/
     private static final int MAIN_BUILDING_INIT_Y = 16;
-    private static final int TOWER_INIT_X = 14;
-    private static final int TOWER_INIT_Y = 14;
 
-    private int indexID = 0;
-    private ArrayList<PointIndex> indexesOccuped;
-    private ArrayList<Integer> objectsposition;
+    /** indexes occupied by the objects*/
+    private ArrayList<PointIndex> indexesOccupied;
+    /** objects to draw on the screen*/
     private ArrayList<GameObject> objectsToDraw;
+    /** application context*/
     private Context context;
+    /** Arraay of boxes where put the objects */
     private static Box[] boxes;
+    /** Game DrawActionsBar*/
     private DrawActionsBar drawActionsBar;
+    /** Game DrawResourcesBar*/
     private DrawResourcesBar drawResourcesBar;
-    private Box mainBuildingBox;
+    /** Index of 'boxes' where the main building is allocated*/
+    private int mainBuildingBox;
+    /** Class to get all bitmaps of the game*/
     private BitmapManager bitmapManager;
+    /** boxes witch the main build occupied*/
     private static int[] boxesMainBuild;
 
     public Escenario(Context context, Box[] boxes, DrawActionsBar drawActionsBar, DrawResourcesBar drawResourcesBar, BitmapManager bitmapManager) {
         this.bitmapManager = bitmapManager;
-        this.objectsposition = new ArrayList<>();
         this.context = context;
         this.boxes = boxes;
         this.drawActionsBar = drawActionsBar;
         this.objectsToDraw = new ArrayList<>();
-        this.indexesOccuped = new ArrayList<>();
+        this.indexesOccupied = new ArrayList<>();
         this.drawResourcesBar = drawResourcesBar;
         initMainBuildingBoxes();
     }
@@ -56,7 +70,7 @@ public class Escenario {
     public void generateRandomScenario(){
         boolean flagContinue = true;
 
-        while (indexesOccuped.size() < OBJECTS_TOTAL){
+        while (indexesOccupied.size() < OBJECTS_TOTAL){
             int x = (int)(Math.random()*(DIV ));
             int y = (int)(Math.random()*(DIV ));
             int type = (int)(Math.random()*3);
@@ -66,14 +80,14 @@ public class Escenario {
             }
 
             if(flagContinue) {
-                for (int i = 0; i < indexesOccuped.size(); i++) {
-                    if (indexesOccuped.get(i).getIndexX() == x && indexesOccuped.get(i).getIndexY() == y) {
+                for (int i = 0; i < indexesOccupied.size(); i++) {
+                    if (indexesOccupied.get(i).getIndexX() == x && indexesOccupied.get(i).getIndexY() == y) {
                         flagContinue = false;
                     }
                     //Controla que rocas y árboles no se solapen
-                    if (indexesOccuped.get(i).getIndexY() == y - 1 || indexesOccuped.get(i).getIndexY() ==y +1) {
+                    if (indexesOccupied.get(i).getIndexY() == y - 1 || indexesOccupied.get(i).getIndexY() ==y +1) {
                         flagContinue = false;
-                    } else if (indexesOccuped.get(i).getIndexX() == x - 1 || indexesOccuped.get(i).getIndexX() == x+1) {
+                    } else if (indexesOccupied.get(i).getIndexX() == x - 1 || indexesOccupied.get(i).getIndexX() == x+1) {
                         flagContinue = false;
                     }
                 }
@@ -81,17 +95,14 @@ public class Escenario {
                 if (flagContinue) {
                     if (x < PLAYER_INIT_X || y < PLAYER_INIT_Y) {
                         if (type == 0) {
-                            objectsToDraw.add(new Nature(boxes, indexID, GameTools.getBoxByIndex(boxes, x, y), context, NatureType.WOOD, drawActionsBar, bitmapManager));
-                            indexID++;
-                            indexesOccuped.add(new PointIndex(x, y));
+                            objectsToDraw.add(new Nature(boxes, 0, GameTools.getBoxByIndex(boxes, x, y), context, NatureType.WOOD, drawActionsBar, bitmapManager));
+                            indexesOccupied.add(new PointIndex(x, y));
                         } else if (type == 1) {
-                            objectsToDraw.add(new Nature(boxes, indexID, GameTools.getBoxByIndex(boxes, x, y), context, NatureType.ROCK, drawActionsBar, bitmapManager));
-                            indexID++;
-                            indexesOccuped.add(new PointIndex(x, y));
+                            objectsToDraw.add(new Nature(boxes, 0, GameTools.getBoxByIndex(boxes, x, y), context, NatureType.ROCK, drawActionsBar, bitmapManager));
+                            indexesOccupied.add(new PointIndex(x, y));
                         } else {
-                            objectsToDraw.add(new Nature(boxes, indexID, GameTools.getBoxByIndex(boxes, x, y), context, NatureType.FOOD, drawActionsBar, bitmapManager));
-                            indexID++;
-                            indexesOccuped.add(new PointIndex(x, y));
+                            objectsToDraw.add(new Nature(boxes, 0, GameTools.getBoxByIndex(boxes, x, y), context, NatureType.FOOD, drawActionsBar, bitmapManager));
+                            indexesOccupied.add(new PointIndex(x, y));
                         }
                     }
                 } else {
@@ -111,8 +122,12 @@ public class Escenario {
      * @param initIndexY indexY of the init box of the main building
      */
     public void generateMainBuilding(int initIndexX,int initIndexY){
-        mainBuildingBox = boxes[GameTools.getBoxByIndex(boxes,initIndexX,initIndexY)];
-        objectsToDraw.add(new Building(boxes,indexID,GameTools.getBoxByIndex(boxes,initIndexX,initIndexY),context, BuildingType.MAIN, drawActionsBar,drawResourcesBar,bitmapManager));
+        mainBuildingBox = GameTools.getBoxByIndex(boxes,initIndexX,initIndexY);
+        Building mainBuilding = new Building(boxes,0,GameTools.getBoxByIndex(boxes,initIndexX,initIndexY),context, BuildingType.MAIN, drawActionsBar,drawResourcesBar,bitmapManager);
+        objectsToDraw.add(new Building(boxes,0,GameTools.getBoxByIndex(boxes,initIndexX,initIndexY),context, BuildingType.MAIN, drawActionsBar,drawResourcesBar,bitmapManager));
+        boxes[GameTools.getBoxByIndex(boxes,initIndexX+1,initIndexY)].setGameObject(mainBuilding);
+        boxes[GameTools.getBoxByIndex(boxes,initIndexX,initIndexY+1)].setGameObject(mainBuilding);
+        boxes[GameTools.getBoxByIndex(boxes,initIndexX+1,initIndexY+1)].setGameObject(mainBuilding);
 //        indexID++;
 //        objectsToDraw.add(new Building(boxes,indexID,GameTools.getBoxByIndex(boxes,TOWER_INIT_X,TOWER_INIT_Y),context, BuildingType.TOWER, drawActionsBar,drawResourcesBar,bitmapManager));
     }
@@ -129,7 +144,7 @@ public class Escenario {
      * Get the init box where the main building, starts to draw
      * @return init box of the main building.
      */
-    public Box getMainBuildingBox() {
+    public int getMainBuildingBox() {
         return mainBuildingBox;
     }
 

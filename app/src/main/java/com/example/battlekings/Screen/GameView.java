@@ -1,6 +1,7 @@
 package com.example.battlekings.Screen;
 
 import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -12,6 +13,7 @@ import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
+import com.example.battlekings.Database.BD;
 import com.example.battlekings.DrawObjects.DrawObjectSubtype;
 import com.example.battlekings.DrawObjects.DrawObjectType;
 import com.example.battlekings.DrawObjects.buildings.Building;
@@ -24,52 +26,115 @@ import com.example.battlekings.DrawObjects.humans.HumanState;
 import com.example.battlekings.DrawObjects.humans.HumanType;
 import com.example.battlekings.GameManger.Escenario;
 import com.example.battlekings.MainActivity;
+import com.example.battlekings.Database.PlayerData;
 import com.example.battlekings.R;
 import com.example.battlekings.Utils.BitmapManager;
 import com.example.battlekings.Utils.GameTools;
 
+import java.util.ArrayList;
+
+/**
+ * This is the game interface controller. It will paint the draws each specified time.
+ * Also manage each box and his objects. Implements a touch controller.
+ */
 public class GameView extends SurfaceView implements SurfaceHolder.Callback {
+    /** Minimum of seconds possible to appear a new enemy*/
     private static final int DIVIDER_MIN_SECONDS = 5000;
+    /** Init seconds left to appear a new enemy*/
     private static final int DIVIDER_SECONDS_INIT = 100000;
+    /** Number max of boxes horizonal or vertial*/
     public static final int DIV = 20;
+    /** Numbe of actual device screens size that the total canvas surface occupies.*/
     public static final int SIZEGAME = 2;
+    /** Number max of boxes on the screen*/
     public static final int ONSCREENINIT = 10;
+    /** Width of the dialog panel*/
     public static final int SIZE_PANEL_X = 5;
+    /** Height of the dialog panel*/
     public static final int SIZE_PANEL_Y = 6;
+    /** Width of the button dialog panel*/
     public static final int SIZE_BUTTONS_X = 2;
+    /** Height of the button dialog panel*/
     public static final int SIZE_BUTTONS_Y = 1;
 
-    //    private ScaleGestureDetector mScaleGestureDetector;
+    /** Holder of the actual surface view*/
     private SurfaceHolder surfaceHolder;
+    /** Application context*/
     private Context context;
+    /** Thread where the game is run*/
     private GameThread gameThread;
+    /** Indicate if the game is run*/
     private boolean runnig = true;
-    Paint p;
+    /** Paint of the surface view. Can be used to draw the boxes */
+    private Paint p;
+    /** Low bar where are the actions of each object. Only appears when the object is selected */
     private DrawActionsBar drawActionsBar;
+    /** Superior bar where the player resources are showed */
     private DrawResourcesBar drawResourcesBar;
+    /** Index X of the object selected*/
     private int indexSelectedX = 0;
+    /** Index Y of the object selected*/
     private int indexSelectedY = 0;
-    private boolean flagInit = true, flagExit = false, flagChargeData = false,endGame = false;
+    /**
+     * flagInit indicate if the game is init or no
+     * flagExit indicate if the user press the exit button
+     * flagChargeData indicate if the data is charged
+     * endGame indicate if the game is ended
+     */
+    private boolean flagInit = true, flagExit = false, flagChargeData = false, endGame = false;
+    /** Width of the screen*/
     private int w;
+    /** Height  of the screen*/
     private int h;
+    /**
+     * historicalX last indexX touch
+     * historicalY last indexY touch
+     * actualX actual indexX touch
+     * actualY actual indexY touch
+     * totalX difference between actual indexX touch and last indexX touch
+     * totalY difference between actual indexY touch and last indexY touch
+     */
     private int historicalX = -1, historicalY = -1, actualX = -1, actualY = -1, totalX = 0, totalY = 0;
+    /** Used to separate the screen in boxes*/
     private ScreenDivider screenDivider;
+    /** Used to update the boxes that appears on the screen*/
     private BoxScreenManager boxScreenManager;
+    /**
+     *  boxes boxes total of the game
+     *  boxesToDraw boxes that appears on the screen
+     */
     private Box[] boxes, boxesToDraw;
-    private int boxInit, boxGameObjectSelected;
+    /** Box to start to draw on screen. It star to draw on the point (0,0) of the screen device  */
+    private int boxInit;
+    /** Escenario of the game */
     private Escenario escenario;
+    /** Used to draw all game bitmaps*/
     private BitmapManager bitmapManager;
-    private Bitmap bitmapPanel, bitmapButtonBronw, bitmapButtonBronwPressed, bitmapButtonBlue, bitmapButtonBluePressed;
+    /**
+     * bitmapPanel bitmap of the panel
+     * bitmapButtonBrown  bitmap of the button ok panel
+     * bitmapButtonBlue  bitmap of the button cancel panel
+     * bitmapButtonBluePressed  bitmap of the button cancel panel when it's pressed
+     * bitmapButtonBronwPressed  bitmap of the button cancel panel when it's pressed
+     */
+    private Bitmap bitmapPanel, bitmapButtonBrown, bitmapButtonBlue,bitmapButtonBluePressed,bitmapButtonBronwPressed;
+    /** Game start time */
     private long timeMilInit;
-    private int enemiesTotal = 0, enemiesSecondsDivider = DIVIDER_SECONDS_INIT;
+    /** Total enemies with life on the actual game */
+    private int enemiesTotal = 0;
+    /** Divider to reduce the seconds left  to appear a new enemy */
+    private int enemiesSecondsDivider = DIVIDER_SECONDS_INIT;
+    /** Main activity of the app*/
     private MainActivity mainActivity;
+    /** rectangles to manage the screen touchs on the exit dialog*/
     private Rect rectExit, rectPanel, rectOk, rectCancel;
+    /** Paint of the exit panel*/
     private Paint pPanelExit;
+    /** Indicates if is an enemy draw on the game in any box.*/
     private boolean isEnemyDrawed = false;
 
     public GameView(Context context, MainActivity mainActivity) {
         super(context);
-//        this.mScaleGestureDetector = mScaleGestureDetector;
         this.mainActivity = mainActivity;
         this.surfaceHolder = getHolder();
         this.surfaceHolder.addCallback(this);
@@ -117,31 +182,31 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
                 Box boxRect = boxes[GameTools.getBoxByIndex(boxes, (DIV - 1), (DIV / 2))];
                 Box boxPanel = boxes[GameTools.getBoxByIndex(boxes, (DIV / 2 + 1), (DIV / 2 + 1))];
-                int rectOKleft = width/3;
-                int rectCancelleft = rectOKleft+ (boxPanel.getSizeX()*SIZE_BUTTONS_X);
-                int rectTop = height-(height/3);
-                int rectPanelLeft= rectOKleft-(height/10);
-                int rectPanelTop = height/5;
+                int rectOKleft = width / 3;
+                int rectCancelleft = rectOKleft + (boxPanel.getSizeX() * SIZE_BUTTONS_X);
+                int rectTop = height - (height / 3);
+                int rectPanelLeft = rectOKleft - (height / 10);
+                int rectPanelTop = height / 5;
 
                 rectExit = new Rect(boxRect.getX(), boxRect.getY(),
                         boxRect.getX() + boxRect.getSizeX(), boxRect.getY() + boxRect.getSizeY());
 
                 rectPanel = new Rect(rectPanelLeft, rectPanelTop,
-                        rectPanelLeft + (boxRect.getSizeX()*SIZE_PANEL_X), boxRect.getY() + (boxRect.getSizeY()*SIZE_PANEL_Y));
+                        rectPanelLeft + (boxRect.getSizeX() * SIZE_PANEL_X), boxRect.getY() + (boxRect.getSizeY() * SIZE_PANEL_Y));
 
                 rectOk = new Rect(rectOKleft, rectTop,
-                        rectOKleft + (boxPanel.getSizeX()*SIZE_BUTTONS_X), rectTop + (boxRect.getSizeY() * SIZE_BUTTONS_Y));
+                        rectOKleft + (boxPanel.getSizeX() * SIZE_BUTTONS_X), rectTop + (boxRect.getSizeY() * SIZE_BUTTONS_Y));
 
                 rectCancel = new Rect(rectCancelleft, rectTop,
-                        rectCancelleft + (boxPanel.getSizeX()*SIZE_BUTTONS_X), rectTop + (boxRect.getSizeY() * SIZE_BUTTONS_Y));
+                        rectCancelleft + (boxPanel.getSizeX() * SIZE_BUTTONS_X), rectTop + (boxRect.getSizeY() * SIZE_BUTTONS_Y));
 
                 bitmapManager.chargePanelsBitmpap(boxPanel.getSizeX() * SIZE_BUTTONS_X, boxPanel.getSizeY() * SIZE_BUTTONS_Y,
                         boxPanel.getSizeX() * SIZE_PANEL_X, boxPanel.getSizeY() * SIZE_PANEL_Y);
-                pPanelExit.setTextSize(rectOk.height()/2);
+                pPanelExit.setTextSize(rectOk.height() / 2);
                 bitmapPanel = bitmapManager.getBitmapPanel();
                 bitmapButtonBlue = bitmapManager.getBitmapButtonBlue();
                 bitmapButtonBluePressed = bitmapManager.getBitmapButtonBluePressed();
-                bitmapButtonBronw = bitmapManager.getBitmapButtonBrown();
+                bitmapButtonBrown = bitmapManager.getBitmapButtonBrown();
                 bitmapButtonBronwPressed = bitmapManager.getBitmapButtonBrownPressed();
                 flagChargeData = true;
             }
@@ -219,12 +284,19 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
             case MotionEvent.ACTION_UP:
                 historicalX = 0;
                 historicalY = 0;
-                if(endGame){
+                if (endGame) {
                     if (rectOk.contains((int) event.getX(), (int) event.getY())) {
                         runnig = false;
+                        BD bd = new BD(context,"game",null,1);
+                        SQLiteDatabase db = bd.getWritableDatabase();
+                        if(db != null){
+                            PlayerData data = new PlayerData(drawActionsBar.getHumansCreated(),0,drawActionsBar.getEnemiesDead(),drawResourcesBar.getTotalResources(),0,0,0);
+                            bd.putData(db,data);
+                            bd.close();
+                        }
                         exitToMainMenu();
                     }
-                }else if (flagExit) {
+                } else if (flagExit) {
                     if (rectOk.contains((int) event.getX(), (int) event.getY())) {
                         runnig = false;
                         exitToMainMenu();
@@ -272,24 +344,31 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
     /**
      * Draw the game.
      * At first the boxes and later the bars.
-     *
-     * @param canvas
+     * If flag exit is true, draw a dialog to ask the user if he wants to exit of the game.
+     * When finish to draw, sleep the thread a specified time
+     * @param canvas canvas
      */
     public void drawGame(Canvas canvas) {
-        if (flagChargeData) {
-            if (flagExit) {
-                drawExitMenu(canvas);
-            } else {
-                drawVisibleBoxes(canvas);
-                drawResourcesBar.draw(canvas);
-                drawButtonExit(canvas);
-            }
+        try {
+            if (flagChargeData) {
+                if (flagExit) {
+                    drawExitMenu(canvas);
+                } else {
+                    drawVisibleBoxes(canvas);
+                    drawResourcesBar.draw(canvas);
+                    drawButtonExit(canvas);
+                }
 
-            try {
-                Thread.sleep(150);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+                try {
+                    Thread.sleep(80);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
+        }catch (ArrayIndexOutOfBoundsException e){
+            e.printStackTrace();
+        }catch (Exception e){
+            e.printStackTrace();
         }
     }
 
@@ -310,31 +389,31 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
      * @param canvas canvas
      */
     private void drawExitMenu(Canvas canvas) {
-        String exitGame ;
-        String exitGameOk ;
+        String exitGame;
+        String exitGameOk;
         String exitGameCancel = "";
-        if(endGame) {
+        if (endGame) {
             exitGame = context.getResources().getText(R.string.game_end).toString();
             exitGameOk = context.getResources().getText(R.string.game_ok).toString();
-        }else{
+        } else {
             exitGame = context.getResources().getText(R.string.game_exit).toString();
             exitGameOk = context.getResources().getText(R.string.game_yes).toString();
             exitGameCancel = context.getResources().getText(R.string.game_no).toString();
         }
 
         canvas.drawColor(Color.BLACK);
-        canvas.drawBitmap(bitmapPanel,rectPanel.left,rectPanel.top,null);
-        canvas.drawBitmap(bitmapButtonBlue,rectOk.left,rectOk.top,p);
-        if(!endGame) {
-            canvas.drawBitmap(bitmapButtonBronw, rectCancel.left, rectCancel.top, null);
+        canvas.drawBitmap(bitmapPanel, rectPanel.left, rectPanel.top, null);
+        canvas.drawBitmap(bitmapButtonBlue, rectOk.left, rectOk.top, p);
+        if (!endGame) {
+            canvas.drawBitmap(bitmapButtonBrown, rectCancel.left, rectCancel.top, null);
         }
-        pPanelExit.setTextSize(rectPanel.height()/5);
-        canvas.drawText(exitGame,rectPanel.left+(rectPanel.width()/10),
-                rectPanel.top+(rectPanel.height()/2),pPanelExit);
-        pPanelExit.setTextSize(rectOk.height()/2);
-        canvas.drawText(exitGameOk,rectOk.left+(rectPanel.width()/10),
-                rectOk.top+(rectPanel.height()/7),pPanelExit);
-        if(!endGame) {
+        pPanelExit.setTextSize(rectPanel.height() / 5);
+        canvas.drawText(exitGame, rectPanel.left + (rectPanel.width() / 10),
+                rectPanel.top + (rectPanel.height() / 2), pPanelExit);
+        pPanelExit.setTextSize(rectOk.height() / 2);
+        canvas.drawText(exitGameOk, rectOk.left + (rectPanel.width() / 10),
+                rectOk.top + (rectPanel.height() / 7), pPanelExit);
+        if (!endGame) {
             canvas.drawText(exitGameCancel, rectCancel.left + (rectPanel.width() / 10),
                     rectCancel.top + (rectPanel.height() / 7), pPanelExit);
         }
@@ -346,15 +425,16 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
      * @param c Canvas
      */
     private void drawVisibleBoxes(Canvas c) {
-        if(endGame){
+        if (endGame) {
             drawExitMenu(c);
             return;
         }
 
-        if (((Building) escenario.getMainBuildingBox().getGameObject()).getActualLife() <= 0) {
+        if (((Building)boxes[ escenario.getMainBuildingBox()].getGameObject()).getActualLife() <= 0) {
             endGame = true;
             return;
         }
+        ArrayList<Human>humans = new ArrayList<>();
         int indexBar = -1;
         //La superficie debe dibujarse primero
         for (int i = 0; i < boxScreenManager.getBoxesToDraw().length; i++) {
@@ -362,23 +442,29 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         }
         for (int i = 0; i < boxScreenManager.getBoxesToDraw().length; i++) {
             if (boxesToDraw[i].getGameObject() != null) {
+                boxesToDraw[i].drawBox(c);
                 if (boxesToDraw[i].getGameObject().getClass().equals(Human.class)) {
-                    boxesToDraw[i].drawBox(c);
                     if (((Human) boxesToDraw[i].getGameObject()).getHumanType() == HumanType.ENEMY) {
                         isEnemyDrawed = true;
                     }
-                } else {
-                    boxesToDraw[i].drawBox(c);
+                    humans.add((Human) boxesToDraw[i].getGameObject());
                 }
 
                 if (boxesToDraw[i].getGameObject() != null) {
                     if (boxesToDraw[i].getGameObject().isSelected()) {
-                        c.drawRect(boxesToDraw[i].getX(), boxesToDraw[i].getY(), boxesToDraw[i].getFinalX(), boxesToDraw[i].getFinalY(), p);
+                        if (boxesToDraw[i].getGameObject().getClass().equals(Building.class) && ((Building) boxesToDraw[i].getGameObject()).getBuildingType() == BuildingType.MAIN) {
+                            c.drawRect(boxesToDraw[i].getX(), boxesToDraw[i].getY(), boxesToDraw[i].getFinalX() + boxes[0].getSizeX(), boxesToDraw[i].getFinalY() + boxes[0].getSizeY(), p);
+                        } else {
+//                            c.drawRect(boxesToDraw[i].getActualGameObjectIndexX(), boxesToDraw[i].getActualGameObjectIndexY(),
+//                                    boxesToDraw[i].getActualGameObjectIndexX() + boxesToDraw[0].getSizeX(),
+//                                    boxesToDraw[i].getActualGameObjectIndexY() + boxesToDraw[0].getSizeY(), p);
+                        }
                         indexBar = i;
                     }
                 }
 
             }
+//TODO: Si se activa esto, se ven las celdas con sus índices
 //            pruebas
 //            Paint p = new Paint();
 //            p.setStrokeWidth(5);
@@ -393,7 +479,9 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 //                    boxesToDraw[i].getX(),boxesToDraw[i].getY()+boxesToDraw[i].getSizeY(),p);
         }
 
-        if(!isEnemyDrawed) {
+
+
+        if (!isEnemyDrawed) {
             movesEnemys(c);
         }
 
@@ -403,7 +491,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         }
         boxesToDraw = boxScreenManager.updateBoxesTodraw(boxInit);
 
-        if(enemiesTotal <8) {
+        if (enemiesTotal < 8) {
             if (enemiesTotal == 0) {
                 createEnemy();
                 enemiesTotal++;
@@ -415,6 +503,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
             }
         }
         isEnemyDrawed = false;
+//        movesHumans(humans,c);
     }
 
     /**
@@ -425,7 +514,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
                 new Human(boxes, 0, 0, context, HumanType.ENEMY, drawActionsBar, HumanOrientation.SOUTH, drawResourcesBar, bitmapManager));
         ((Human) boxes[0].getGameObject()).setHumanState(HumanState.ONACTION);
         ((Human) boxes[0].getGameObject()).setObjectObjetive(boxes[getMainBuildingIndex()].getGameObject());
-        setEnemyDestiny((Human) boxes[0].getGameObject());
+        ((Human) boxes[0].getGameObject()).setBoxDestiny(escenario.getMainBuildingBox());
     }
 
     /**
@@ -437,21 +526,31 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         if (!flagExit) {
             for (int i = 0; i < boxes.length; i++) {
                 if (boxes[i].getGameObject() != null && boxes[i].getGameObject().getClass() == Human.class && ((Human) boxes[i].getGameObject()).getHumanType() == HumanType.ENEMY) {
-                    setEnemyDestiny((Human) boxes[i].getGameObject());
                     boxes[i].drawBox(c);
                 }
             }
         }
     }
 
-    private void setEnemyDestiny(Human enemy){
-        int[] boxesLimit = Escenario.getBoxesMainBuild();
-        for (int i = 0; i < boxesLimit.length; i++) {
-            if(boxes[boxesLimit[i]].getGameObject() == null){
-                enemy.setBoxDestiny(boxesLimit[i]);
-                return;
+    /**
+     * Move the humans of the map, except, the humans drawed on the screen
+     * @param humans humans draw on the screen
+     */
+    private void movesHumans(ArrayList<Human> humans,Canvas c) {
+            for (int i = 0; i < boxes.length; i++) {
+                if (boxes[i].getGameObject() != null && boxes[i].getGameObject().getClass() == Human.class && ((Human) boxes[i].getGameObject()).getHumanType() != HumanType.ENEMY) {
+                    boolean flag = false;
+                    for (int j = 0; j < humans.size(); j++) {
+                        if(humans.get(j) == boxes[i].getGameObject()){
+                            flag = true;
+                        }
+                    }
+                    if(!flag) {
+                        boxes[i].drawBox(c);
+                    }
+                }
             }
-        }
+
     }
 
     /**
@@ -596,7 +695,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
     /**
      *
      */
-    private void exitToMainMenu(){
+    private void exitToMainMenu() {
         mainActivity.setScrenOrientation(false);
         mainActivity.setGameRunning(false);
         mainActivity.setContentViewMain();

@@ -28,7 +28,7 @@
     <string name="tutorial_action">Character action</string>
     <string name="tutorial_move">How to move</string>
     <string name="tutorial_objetive">Game objetive</string>
-    <string name="tutorial_objetive_description">Game consist.....</string>
+    <string name="tutorial_objetive_description">The game consists of survival against an enemy.       The enemies will aim to destroy our main building while the player must defend it.       If the enemy destroys our main building, the game will end.           The following elements will have been distributed on the map.           -Trees: They supply wood.           -Mushrooms: They supply food.           -Rocks: They supply stone.       To defend themselves, the player will be able to create the following units, all of which cost food:       -Constructor: To repair the main building.       -Soldier: To attack the enemy.       -Collector: To collect resources from the map.</string>
     <string name="game_no">No</string>
     <string name="game_ok">OK</string>
     <string name="game_exit">Do you wanto to exit?</string>
@@ -39,7 +39,6 @@
     <array name="list_credits">
         <item>Developer : Aelajandro Vilas</item>
         <item>Draws : Alejandro Vilas</item>
-        <item>Draws : Andrea Pérez</item>
         <item>Draws : kenney.nl</item>
         <item>Draws : Freepik</item>
         <item>Text font : 1001Fonts.net</item>
@@ -50,4 +49,8 @@
             Attribution 4.0 International (CC BY 4.0)
             https://creativecommons.org/licenses/by/4.0/</item>
     </array>
+    <string name="tutorial_action_building">Build Action</string>
+    <string name="tutorial_action_text">For a character to do their action, you must select the action button (the first one on the left), and then click on the object on which the action falls.</string>
+    <string name="tutorial_create_text">To create a character you must select the main building and select the character you want to create.</string>
+    <string name="tutorial_move_text">To move you just have to select a unit and click on the destination where you want the character to move</string>
 </resources>

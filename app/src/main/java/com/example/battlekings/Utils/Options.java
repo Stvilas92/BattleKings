@@ -2,17 +2,15 @@ package com.example.battlekings.Utils;
 
 import android.content.Context;
 
-import com.example.battlekings.Language;
-
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
-import java.util.Properties;
-
 public class Options {
-    private static final String PROPERTIES_FILENAME = "application.properties";
+    /**
+     * vibration false - no vibration, true - vibrate
+     * music false - music off, true - music on
+     */
     private boolean vibration,music;
+    /** Game language*/
     private Language language;
+    /** Application context*/
     private Context context ;
 
     public Options(Context context){

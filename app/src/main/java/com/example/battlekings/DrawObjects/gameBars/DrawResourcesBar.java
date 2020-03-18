@@ -7,22 +7,49 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.graphics.Typeface;
+
+import com.example.battlekings.R;
 
 import java.io.IOException;
 import java.io.InputStream;
 
+import androidx.core.content.res.ResourcesCompat;
+
+/**
+ * Bar located on top side of the screen.
+ * Indicates the resources of the player, food, wood and stone.
+ */
 public class DrawResourcesBar {
+    /** Index of the box where the rectangle of the food will be draw*/
     private static final int INIT_RECT_INDEX_FOOD = 1;
+    /** Index of the box where the rectangle of the food will be draw*/
     private static final int INIT_RECT_INDEX_WOOD = 3;
+    /** Index of the box where the rectangle of the food will be draw*/
     private static final int INIT_RECT_INDEX_STONE = 5;
     private static final int RECT_WITDH = 2;
 
+    /** Bitmap to draw the resource type on the bar*/
     private Bitmap foodBitmap,woodBitmap,stoneBitmap;
+    /** Data of different resources to show on the bar*/
     private int actualWood,actualStone,actualFood;
-    private int initY,boxSizeX,boxSizeY,screenWidth;
+    /**
+     * initY bottom of the bar as a screen point y
+     * boxSizeX width of a screen box
+     * boxSizeY height of a screen box
+     */
+    private int initY,boxSizeX,boxSizeY;
+    /**
+     * pText paint to draw the text showed on the bar
+     * pResources paint of the rectangles used to locate the bitmaps on the bar
+     */
     private Paint pText,pResources;
-    private Rect rBackgroud,rFood,rWood,rStone;
+    /** Different rects to locate the bitmaps draw on the bar*/
+    private Rect rFood,rWood,rStone;
+    /** Application context*/
     private Context context;
+    /** Total resources collected by the player*/
+    private int totalResources;
 
     public DrawResourcesBar(int actualWood, int actualStone, int actualFood, int initY, int boxSizeX, int boxSizeY, int screenWidth, Context context) {
         this.actualWood = actualWood;
@@ -31,14 +58,15 @@ public class DrawResourcesBar {
         this.initY = initY;
         this.boxSizeX = boxSizeX;
         this.boxSizeY = boxSizeY;
-        this.screenWidth = screenWidth;
         this.context = context;
         this.pText = new Paint();
         this.pText.setColor(Color.YELLOW);
         this.pText.setTextSize(boxSizeY/2);
+        Typeface ttf = ResourcesCompat.getFont(context, R.font.prince_valiant);
+        pText.setTypeface(ttf);
         this.pResources = new Paint();
         this.pResources.setColor(Color.BLACK);
-        this.rBackgroud = new Rect(0,0,screenWidth,initY);
+//        this.rBackgroud = new Rect(0,0,screenWidth,initY);
         this.rFood = getRect(INIT_RECT_INDEX_FOOD);
         this.rWood = getRect(INIT_RECT_INDEX_WOOD);
         this.rStone = getRect(INIT_RECT_INDEX_STONE);
@@ -71,8 +99,7 @@ public class DrawResourcesBar {
      * @return
      */
     private Rect getRect(int indexLeft){
-        Rect r = new Rect();
-        r = new Rect(boxSizeX*indexLeft,0,(boxSizeX*indexLeft)+(boxSizeX*RECT_WITDH),initY);
+        Rect r = new Rect(boxSizeX*indexLeft,0,(boxSizeX*indexLeft)+(boxSizeX*RECT_WITDH),initY);
         return r;
     }
 
@@ -127,6 +154,9 @@ public class DrawResourcesBar {
      * @param actualWood actual wood of the player
      */
     public void setActualWood(int actualWood) {
+        if(actualWood > this.actualWood) {
+            totalResources += (actualWood - this.actualWood);
+        }
         this.actualWood = actualWood;
     }
 
@@ -143,6 +173,9 @@ public class DrawResourcesBar {
      * @param actualStone actual stone of the player
      */
     public void setActualStone(int actualStone) {
+        if(actualStone > this.actualStone) {
+            totalResources += (actualStone - this.actualStone);
+        }
         this.actualStone = actualStone;
     }
 
@@ -159,6 +192,17 @@ public class DrawResourcesBar {
      * @param actualFood actual food of the player
      */
     public void setActualFood(int actualFood) {
+        if(actualFood > this.actualFood) {
+            totalResources += (actualFood - this.actualFood);
+        }
         this.actualFood = actualFood;
+    }
+
+    /**
+     * Get total resources collected on the game
+     * @return total resources collected on the game
+     */
+    public int getTotalResources() {
+        return totalResources;
     }
 }

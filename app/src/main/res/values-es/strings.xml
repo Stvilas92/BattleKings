@@ -1,38 +1,69 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">BattleKings</string>
-    <string name="menu_main_credits">Créditos</string>
-    <string name="menu_options_language">Idioma : Español</string>
     <string name="menu_main_play">Jugar</string>
-    <string name="menu_options_music_off">Música : OFF</string>
-    <string name="menu_options_music_on">Música : ON</string>
     <string name="menu_main_options">Opciones</string>
-    <string name="menu_play_new_game">Supervivencia</string>
+    <string name="menu_main_credits">Créditos</string>
     <string name="menu_main_profile">Perfil</string>
-    <string name="menu_play_tutorial">Tutorial</string>
-    <string name="menu_options_vibration_off">Vibración : OFF</string>
+    <string name="menu_options_language">Idioma : Español</string>
+    <string name="menu_options_music_on">Música : ON</string>
+    <string name="menu_options_music_off">Música : OFF</string>
     <string name="menu_options_vibration_on">Vibración : ON</string>
-    <string name="menu_profile_buildings_created">Edificios creados</string>
-    <string name="menu_profile_buildings_destroyed">Edificios destruidos</string>
-    <string name="menu_profile_buildings_loss">Edificios perdidos</string>
-    <string name="menu_profile_photo">Foto</string>
-    <string name="menu_profile_resources_collected">Total recursos recogidos</string>
-    <string name="menu_profile_units_created">Unidades creadas</string>
-    <string name="menu_profile_units_destroyed">Unidades destruidas</string>
-    <string name="menu_profile_units_loss">Unidades perdidas</string>
+    <string name="menu_options_vibration_off">Vibración : OFF</string>
+    <string name="menu_play_new_game">Supervivencia</string>
+    <string name="menu_play_tutorial">Tutorial</string>
+
+    <!-- Credits-->
+    <array name="list_credits">
+        <item>Desarrollador : Aelajandro Vilas</item>
+        <item>Dibujos : Alejandro Vilas</item>
+        <item>Dibujos : kenney.nl</item>
+        <item>Dibujos : Freepik</item>
+        <item>Texto : 1001Fonts.net</item>
+        <item>Botones : kenney.nl</item>
+        <item>Sonido : https://freesound.org/s/220209/</item>
+        <item>
+            <div>Icons made by <a href="https://www.flaticon.com/authors/smashicons" title="Smashicons">Smashicons</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a></div>
+        </item>
+        <item>Musica : Short But Strong! by Savfk | https://www.youtube.com/savfkmusic
+            Music promoted by https://www.free-stock-music.com
+            Attribution 4.0 International (CC BY 4.0)
+            https://creativecommons.org/licenses/by/4.0/</item>
+    </array>
+
+    <!--Profile -->
     <string name="menu_profile_username">Informacion del usuario</string>
-    <string name="menu_profile_w_l">Victorias/Derrotas</string>
     <string name="menu_profile_username_default">Username</string>
+    <string name="menu_profile_photo">Foto</string>
+    <string name="menu_profile_w_l">Victorias/Derrotas</string>
+    <string name="menu_profile_units_created">Unidades creadas</string>
+    <string name="menu_profile_units_loss">Unidades perdidas</string>
+    <string name="menu_profile_units_destroyed">Unidades destruidas</string>
+    <string name="menu_profile_resources_collected">Total recursos recogidos</string>
+    <string name="menu_profile_buildings_created">Edificios creados</string>
+    <string name="menu_profile_buildings_loss">Edificios perdidos</string>
+    <string name="menu_profile_buildings_destroyed">Edificios destruidos</string>
+    <string name="menu_change_name">Introduzca nuevo nombre</string>
+
+
+    <!-- Pause menu -->
     <string name="menu_pause_return">Volver al juego</string>
     <string name="menu_pause_main_menu">Menu principal</string>
-    <string name="tutorial_action">Accion del personaje</string>
-    <string name="tutorial_move">Moverse</string>
+
+    <!-- Tutorial -->
+    <string name="tutorial_move">Morvese</string>
+    <string name="tutorial_action">Acción del personaje</string>
+    <string name="tutorial_action_building">Acción del Edificio</string>
     <string name="tutorial_objetive">Objetivo del juego</string>
-    <string name="tutorial_objetive_description">El juego consiste en</string>
+    <string name="tutorial_objetive_description">"El juego consiste en una supervivencia frente a un enemigo.      Los enemigos tendran el objetivo de destruir nuestro edificio principal mientras que el jugador debe defenderlo.      Si el enemigo destruye nuestro edificio principal, finalizará la partida.          En el mapa habrá distribuidos los siguientes elementos.          -Arboles : Que suministran madera.          -Setas : Que suministran comida.          -Rocas : Que suministran piedra.      Para defenderse, el jugador podrá crear las siguientes unidades,todas cuestan comida:      -Constructor: Para reparar el edificio principal.      -Soldado: Para atacar al enemigo.      -Recolector: Para recoger recusos del mapa. "</string>
+
+    <!-- On game menu-->
+    <string name="game_yes">Si</string>
     <string name="game_no">No</string>
     <string name="game_ok">OK</string>
-    <string name="game_yes">Si</string>
+    <string name="game_exit">¿Desea salir del juego?</string>
     <string name="game_end">Fin de la partida.</string>
-    <string name="game_exit">¿Dese salir del juego?</string>
-    <string name="menu_change_name">Introduzca nuevo nombre</string>
+    <string name="tutorial_action_text">Para que un personaje haga su accion , debes seleccionar el boton de accion (El primero a la izquierda) , y luego hacer click en el objeto sobre el que recaiga la accion.</string>
+    <string name="tutorial_create_text">"Para crear un personaje debes selecccionar el edificio principal y seleccionar el personaje que desees crear. "</string>
+    <string name="tutorial_move_text">Para moverte solo tienes que seleccionar una unidad y hacer click en el destino donde quierae que se mueva el personaje</string>
 </resources>

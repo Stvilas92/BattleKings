@@ -1,6 +1,13 @@
 package com.example.battlekings.Screen;
 
+/**
+ * Point of the screen
+ */
 public class PointIndex {
+    /**
+     * indexX point x of the screen
+     * indexY point y of the screen
+     */
     int indexX,indexY;
 
     public PointIndex(int indexX, int indexY) {

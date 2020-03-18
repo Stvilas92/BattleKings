@@ -2,6 +2,9 @@ package com.example.battlekings.Utils;
 
 import com.example.battlekings.Screen.Box;
 
+/**
+ * Class witch contains util functions related with game development.
+ */
 public class GameTools {
 
     /**

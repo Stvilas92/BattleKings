@@ -6,53 +6,92 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
-
+import android.graphics.Typeface;
 import com.example.battlekings.DrawObjects.DrawObjectSubtype;
 import com.example.battlekings.DrawObjects.DrawObjectType;
 import com.example.battlekings.DrawObjects.GameObject;
 import com.example.battlekings.DrawObjects.OnTouchBarObjectResult;
 import com.example.battlekings.DrawObjects.gameBars.DrawActionsBar;
+import com.example.battlekings.R;
 import com.example.battlekings.Screen.Box;
 import com.example.battlekings.Utils.BitmapManager;
 import com.example.battlekings.Utils.GameTools;
 
-public class Nature implements GameObject {
-    private static final double RECT_HEIGTH = 1.5;
-    private static final double RECT_WIDTH = 1;
-    private static final int INIT_X = 2;
-    private static final int SEPARATE = 2;
-    private static final int RECTS_NUMBER = 2;
-    private static final int INIT_ROCK = 50;
-    private static final int INIT_FOOD = 150;
-    private static final int INIT_WOOD = 50;
+import androidx.core.content.res.ResourcesCompat;
 
+public class Nature implements GameObject {
+    /** Rect height of draw action bar buttons*/
+    private static final double RECT_HEIGTH = 1.5;
+    /** Rect width of draw action bar buttons*/
+    private static final double RECT_WIDTH = 1;
+    /** Init point x to draw action bar buttons*/
+    private static final int INIT_X = 2;
+    /** Distance between the buttons of the action bar*/
+    private static final int SEPARATE = 1;
+    /** Rects number of the action bar*/
+    private static final int RECTS_NUMBER = 2;
+    /** Init rock whe the game is init*/
+    private static final int INIT_ROCK = 50;
+    /** Init food whe the game is init*/
+    private static final int INIT_FOOD = 150;
+    /** Init wood whe the game is init*/
+    private static final int INIT_WOOD = 50;
+    /** Width of the box that contains the nature bitmap */
     private int sizeX = -1;
+    /** Height of the box that contains the nature bitmap */
     private int sizeY = -1;
+    /** Boxes witch the nature object occupies */
     private int[] boxesOcuped;
+    /** Total boxes */
     private Box[] boxes;
-    private int id, actualBox,rectHeigth,sizeRectY,sizeRectX;
+    /**
+     * actualBox Actual box occupied by the nature
+     * lastBox Last box occupied by the nature
+     * rectHeight Rect height of the drawActionBar
+     */
+    private int actualBox,rectHeigth,sizeRectY,sizeRectX;
+    /**
+     * natureBitmap nature bitmap draw on the map
+     * natureTypeBitmap nature type bitmap draw on the drawResourcesBar
+     */
     private Bitmap natureBitmap,natureTypeBitmap;
+    /** Application context*/
     private Context context;
+    /** Indicate if the human is selected */
     private boolean selected = false;
+    /** Rects of the action bar*/
     private Rect[] rectActions;
+    /**
+     * p paint to draw on the box
+     * pText paint to draw on the DrawActionsBar
+     */
     private Paint p,pText;
+    /** Bitmap Manager of the game*/
     private BitmapManager bitmapManager;
+    /** DrawActionsBar of the nature */
+    private DrawActionsBar drawActionsBar;
 
     //Game Data
+    /** Actual nature type*/
     private NatureType natureType;
+    /** Actual nature state*/
     private NatureState natureState = NatureState.STTOPED;
-    int initResources,actualResources;
+    /** Nature nature resources*/
+    private int initResources;
+    /** Nature nature resources*/
+    private int actualResources;
 
     public Nature(Box[] boxes, int id, int actualBox, Context context, NatureType natureType, DrawActionsBar drawActionsBar, BitmapManager bitmapManager) {
         this.bitmapManager = bitmapManager;
         this.boxes = boxes;
-        this.id = id;
         this.actualBox = actualBox;
         this.context = context;
         this.natureType = natureType;
         this.sizeRectY = (int)(boxes[0].getSizeY()*RECT_HEIGTH);
         this.sizeRectX = (int)(boxes[0].getSizeX()*RECT_WIDTH);
-        rectHeigth = drawActionsBar.getInitY()+(((drawActionsBar.getScreenHeight()- drawActionsBar.getInitY()) - this.sizeRectY)/2);
+        this.drawActionsBar = drawActionsBar;
+//        rectHeigth = drawActionsBar.getInitY()+(((drawActionsBar.getScreenHeight()- drawActionsBar.getInitY()) - this.sizeRectY)/2);
+        rectHeigth =  drawActionsBar.getInitY();
         makeObjectToDraw();
         makeRectActions();
         this.p = new Paint();
@@ -60,6 +99,8 @@ public class Nature implements GameObject {
         p.setStyle(Paint.Style.STROKE);
         this.pText = new Paint();
         pText.setColor(Color.YELLOW);
+        Typeface ttf = ResourcesCompat.getFont(context, R.font.prince_valiant);
+        pText.setTypeface(ttf);
         pText.setStyle(Paint.Style.FILL_AND_STROKE);
         pText.setTextSize(boxes[0].getSizeY()/2);
     }
@@ -84,7 +125,9 @@ public class Nature implements GameObject {
     @Override
     public void drawInActionBar(Canvas c) {
         for (int i = 0; i < rectActions.length; i++) {
-            c.drawRect(rectActions[i],p);
+//            c.drawRect(rectActions[i],p);
+            //c.drawBitmap(drawActionsBar.getBitmapButton(), rectActions[i].left, rectActions[i].top, null);
+
             if( i == 0){
                 c.drawBitmap(natureTypeBitmap,rectActions[i].left,rectActions[i].top,null);
             }else if( i == 1){
